@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { cn } from "./lib/utils";
+import { StoreProvider } from "@/app/components/store-provider";
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { LayoutApp } from "./components/layout-app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,12 +15,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+
+
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <StoreProvider>
+      <html lang="en">
+        <body  className={cn(
+          inter.className,
+        )}>
+          <AntdRegistry>
+            {/* <LayoutApp> */}
+              {children}
+            {/* </LayoutApp> */}
+          </AntdRegistry>
+        </body>
+      </html>
+    </StoreProvider>
   );
 }
