@@ -39,7 +39,6 @@ interface IState {
 
 export const fetchAccount = createAsyncThunk("acount/fetchAcount", async () => {
   const response = await callFetchAccount();
-  console.log(response.data);
   return response.data;
 });
 

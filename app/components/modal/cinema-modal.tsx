@@ -50,7 +50,6 @@ export const CinemaModal = ({
 
   const onFinish = async (values: ICinema) => {
     const { name, area } = values;
-    console.log("value: ", values)
   
     const cinema = {  name, area };
     if(dataInit?._id) {
@@ -67,7 +66,6 @@ export const CinemaModal = ({
       }
     } else {
       const res = await callCreateCinema(cinema);
-      console.log(res)
       if(res.data) {
         message.success("Add success cinema");
         handleCancel();

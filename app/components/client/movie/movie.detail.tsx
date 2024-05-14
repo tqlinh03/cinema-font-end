@@ -1,5 +1,6 @@
 "use client";
 import {
+  callFetchMovie,
   callFetchMovieById,
   callFetchMovieByIdAndDate,
   callFetchShowtimeByDate,
@@ -30,7 +31,6 @@ interface IShowtimeProps {
   };
 }
 
-
 const { useBreakpoint } = Grid;
 
 export const MovieDetail = ({ movieId }: IProps) => {
@@ -59,7 +59,6 @@ export const MovieDetail = ({ movieId }: IProps) => {
     const fetchData = async () => {
       try {
         const res = await callFetchMovieByIdAndDate(movieId, date);
-        console.log("res", res);
         if (res.data) {
           setShowtimesDay(res.data);
         }
@@ -85,25 +84,38 @@ export const MovieDetail = ({ movieId }: IProps) => {
   const handleModal = (showtime: IShowtimeProps, hour: Date) => {
     setOpenModal(true);
     setShowtime(showtime);
-    console.log("showtime", showtime);
   };
 
   return (
     <>
       <Row className="mt-10" gutter={[20, 20]}>
-        <Col span={screens.md ? 7 : screens.sm ?  24 : 24}>
+        <Col span={screens.md ? 7 : screens.sm ? 24 : 24}>
           <Image
-            style={{ 
+            style={{
               borderRadius: 20,
-              width: screens.xl ? 260 : screens.lg ? 240 : screens.md ? 170 : screens.sm ? 500 : 340,
-              height: screens.lg ? 410: screens.md ? 260 : screens.sm ? 700 : 470
+              width: screens.xl
+                ? 260
+                : screens.lg
+                ? 240
+                : screens.md
+                ? 170
+                : screens.sm
+                ? 500
+                : 340,
+              height: screens.lg
+                ? 410
+                : screens.md
+                ? 260
+                : screens.sm
+                ? 700
+                : 470,
             }}
             // width={260}
             // height={410}
             src={movieDetai?.img}
           />
         </Col>
-        <Col span={screens.md ? 17 : screens.sm ?  24 : 24}>
+        <Col span={screens.md ? 17 : screens.sm ? 24 : 24}>
           <h1 className="text-3xl mt-2">{movieDetai?.name}</h1>
           <p className="text-lg">{movieDetai?.description}</p>
           <Row>
@@ -158,7 +170,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
         <Col span={24}>
           <Row>
             {nextSevenDays.map((day, index) => (
-              <Col key={index} span={screens.md ? 4 : screens.sm ?  6 : 6}>
+              <Col key={index} span={screens.md ? 4 : screens.sm ? 6 : 6}>
                 <Card
                   onClick={() => handleClick(day, index)}
                   style={{
@@ -215,7 +227,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
           {movieDetai && (
             <ReactPlayer
               width={800}
-              height={screens.lg ? 400 : screens.sm ?  200 : 140}
+              height={screens.lg ? 400 : screens.sm ? 200 : 140}
               url={movieDetai.videoURL}
               controls={true}
             />
@@ -224,12 +236,12 @@ export const MovieDetail = ({ movieId }: IProps) => {
       </div>
       <div>
         <ConfirmTicketBookingModal
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        showtime={showtime}
-      />
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          showtime={showtime}
+        />
       </div>
-      
+
       <CommentMovie movieId={movieId} />
     </>
   );

@@ -26,7 +26,6 @@ export const Booking = ({ movieId }: IProps) => {
     const fetchData = async () => {
       try {
         const res = await callFetchMovieById(movieId);
-        console.log("res", res);
         if (res.data) {
           setMovie(res.data);
         }

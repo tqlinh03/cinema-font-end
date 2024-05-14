@@ -9,10 +9,13 @@ interface AccessTokenResponse {
 }
 
 const instance = axiosClient.create({
-  baseURL: "http://localhost:8000",
+  baseURL:  process.env.NEXT_PUBLIC_BACKEND_URL,
+  // baseURL: process.env.BACKEND_URL,
   withCredentials: true
 })
 
+// console.log(process.env.BACKEND_URL);
+// alert(process.env.BACKEND_URL);
 const mutex = new Mutex();
 const NO_RETRY_HEADER = 'x-no-retry';
 

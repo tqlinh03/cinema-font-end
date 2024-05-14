@@ -20,7 +20,8 @@ import { useRouter } from "next/navigation";
 interface IProps {
   movieId?: number
 }
-export const Movie = (movieId: IProps) => {
+
+export const Movie = ({ movieId }: IProps) => {
   const [form] = Form.useForm();
   const [ imgUrl, setImgUrl ] = useState<string>("")
   const router = useRouter()
@@ -37,7 +38,7 @@ export const Movie = (movieId: IProps) => {
   };
 
   useEffect(() => {
-    if(movieId.movieId == singleMovie._id) {
+    if(movieId == singleMovie._id) {
       form.setFieldsValue({
         name: singleMovie?.name, 
         cast: singleMovie?.cast, 
@@ -55,9 +56,8 @@ export const Movie = (movieId: IProps) => {
     const {name, cast,director, time, genre, videoURL, description, ReleaseDate} = values
     const movie = {img: imgUrl, name, cast, director, time, genre, videoURL,description, ReleaseDate}
     
-    if(movieId.movieId == singleMovie._id) {
+    if(movieId == singleMovie._id) {
       const res = await callUpdateMovie(singleMovie._id, movie) 
-      console.log(res)
       if(res.data) {
         message.success("Update movie success.")
         setImgUrl('')
@@ -67,8 +67,6 @@ export const Movie = (movieId: IProps) => {
       }
     } else {
       const res = await callCreateMovie(movie) 
-      console.log(res)
-
       if(res.data) {
         message.success("Create movie success.")
         setImgUrl('')
@@ -167,7 +165,7 @@ export const Movie = (movieId: IProps) => {
 
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 15 }}>
             <Button type="primary" htmlType="submit">
-              {movieId.movieId == singleMovie._id ? "Update": "Create"}
+              {movieId == singleMovie._id ? "Update": "Create"}
             </Button>
           </Form.Item>
         </Form>

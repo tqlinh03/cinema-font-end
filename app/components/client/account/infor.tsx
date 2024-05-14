@@ -16,7 +16,6 @@ export const Infor = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const user = useAppSelector((state) => state.account.user);
-  console.log(user);
 
   useEffect(() => {
     if (user) {

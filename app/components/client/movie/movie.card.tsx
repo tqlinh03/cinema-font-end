@@ -29,7 +29,6 @@ export const MovieCard = () => {
       message.error("Can not call api fetchMovie!");
     }
   };
-
   const handleDetailMovie = (id: number) => {
     router.push(`/movie/${id}`);
   };

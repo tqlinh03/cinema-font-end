@@ -32,7 +32,6 @@ const Test = () => {
     });
     setPaymentRecords(res.data.data.records);
     paymentRecords.map((record) => {
-      console.log("record",record.description);
       const data = record.description;
       data.includes("LINH") ? console.log("Thanh toán vé phim") : console.log("Không phải thanh toán vé phim");
     });

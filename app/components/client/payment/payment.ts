@@ -12,10 +12,11 @@ interface PaymentRecordPrpos {
 
 export const checkPaid = async () => {
   try {
-    const res = await axios.get("https://oauth.casso.vn/v2/transactions?sort=DESC", {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_OAUTH_CASSO}`, {
       headers: {
         Authorization:
-          "Apikey AK_CS.ad1288c0056a11efaec513ed578067cf.TJwlSvVBZdCRTv41lkcA9jFY6DO6kgEtOiNJp5s0aiLljIxn54eHMwbMbAzxZZKv6rHZie6X",
+        `Apikey ${process.env.NEXT_PUBLIC_API_KEY_CASSO_CINEMA}`,
+          // "Apikey AK_CS.ad1288c0056a11efaec513ed578067cf.TJwlSvVBZdCRTv41lkcA9jFY6DO6kgEtOiNJp5s0aiLljIxn54eHMwbMbAzxZZKv6rHZie6X",
       },
     });
     return res.data.data.records;
@@ -33,8 +34,6 @@ export const checkPaymentRecords = async (
   for (const record of paymentRecords) {
     const description = record.description;
     const price = record.amount;
-    console.log(">>>>>>>>", price, total_price, description, ma_GD, ticketId)
-    console.log("[=====]", total_price >= price,description.includes(`${ma_GD}`));
     if (total_price >= price && description.includes(`${ma_GD}`)) {
       await callUpdateBookingTicket(ticketId);
       return true;

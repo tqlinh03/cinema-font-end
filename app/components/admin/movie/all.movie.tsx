@@ -197,7 +197,6 @@ export const AllMovie = () => {
               limit: params.pageSize,
             };
             const query = buildQuery(msg, sort, filter);
-            console.log(query)
             dispath(fetchMovie({ query }));
           }}
           scroll={{ x: true }}

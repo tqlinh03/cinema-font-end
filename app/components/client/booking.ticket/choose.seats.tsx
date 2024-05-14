@@ -51,7 +51,6 @@ export const ChooseSeats = ({ setTotalPrice, setSeats }: BookingProps) => {
     const booking = { seatNumber, price };
     try {
       const res = await callBookingSeats(booking);
-      console.log("res", res);
     } catch (error) {
       message.error("Booking failed");
     }

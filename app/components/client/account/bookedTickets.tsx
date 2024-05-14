@@ -38,7 +38,6 @@ export const BookedTickets = () => {
           ticketCode,
           +ticketId
         );
-        console.log("check", check);
         if (check) {
           setIsModalOpen(false);
           message.success("Thanh toán thành công");
@@ -64,7 +63,6 @@ export const BookedTickets = () => {
   const interval = () => {
     intervalRef.current = setInterval(async () => {
       const check = await checkPaid();
-      console.log("setPaymentRecords",check);
       setPaymentRecords(check);
     }, 1000);
     setTimeout(() => {
