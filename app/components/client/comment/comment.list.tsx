@@ -11,7 +11,7 @@ export const CommentList = ({ comments }: { comments: ICommentProps[] }) => {
       <List
         dataSource={comments}
         header={`${comments.length} ${
-          comments.length > 1 ? "replies" : "reply"
+          comments.length > 1 ? "Trả lời" : "Bình luận"
         }`}
         itemLayout="horizontal"
         renderItem={(comment) => 

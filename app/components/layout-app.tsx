@@ -29,7 +29,8 @@ export const LayoutApp = ({
     if( window.location.pathname === "/login" 
       || window.location.pathname === "/register")
       return;
-    dispatch(fetchAccount() as any)
+    const accessToken = localStorage.getItem("access_token") as string;
+    dispatch(fetchAccount({ accessToken }) as any);
   }, [])
 
   return (

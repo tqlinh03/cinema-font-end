@@ -7,17 +7,18 @@ import { DataSourceItemObject } from 'antd/es/auto-complete';
 import { useRouter } from 'next/navigation';
 
 export interface IShowtimeProps {
-  _id?: any;
+  id?: any;
   date: Date;
   start_time: Date;
-  end_time: Date;
+  end_time: Date; 
   movie: {
-    _id: number;
+    id: number;
     name: string;
     img: string;
     description: string;
     time: number;
   };
+  roomId: number;
 }
 interface MovieProps {
   openModal: boolean;
@@ -28,7 +29,7 @@ interface MovieProps {
 export const ConfirmTicketBookingModal = ({
   openModal,
   setOpenModal,
-  showtime
+  showtime,
 }: MovieProps) => {
   const router = useRouter();
 
@@ -36,14 +37,14 @@ export const ConfirmTicketBookingModal = ({
     setOpenModal(false);
   };
   const handleOk = () => {
-    router.push(`/booking-ticket/${showtime?.movie._id}`);
+    router.push(`/booking-ticket/${showtime?.movie.id}?r=${showtime?.roomId}&s=${showtime?.id}`);
   }
 
   return (<>
       <Modal title="BẠN ĐANG ĐẶT VÉ PHIM" open={openModal}
         onCancel={handleCancel}
         onOk={handleOk}
-        width={600}
+        width={600} 
       >
         <Divider/>
         <Row style={{ display: "flex", justifyContent: "center", alignItems: "center"}}><span className='text-2xl font-bold text-sky-500'>{showtime?.movie?.name}</span></Row>
@@ -57,7 +58,7 @@ export const ConfirmTicketBookingModal = ({
         <Row style={{ display: "flex", justifyContent: "center", alignItems: "center"}}>
           <Col span={8}style={{ display: "flex", justifyContent: "center", alignItems: "center"}}><span className='text-xl font-bold'>...</span></Col>
           <Col span={8}style={{ display: "flex", justifyContent: "center", alignItems: "center"}}> <span className='text-xl font-bold'>{moment(showtime?.date).format("MM/DD/YYYY")}</span></Col>
-          <Col span={8}style={{ display: "flex", justifyContent: "center", alignItems: "center"}}><span className='text-xl font-bold'>{moment(showtime?.start_time).format("HH:mm")}</span></Col>
+          <Col span={8}style={{ display: "flex", justifyContent: "center", alignItems: "center"}}><span className='text-xl font-bold'>{moment(showtime?.start_time, "HH:mm:ss").format("HH:mm")}</span></Col>
         </Row>
         <Divider/>
       </Modal>

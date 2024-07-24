@@ -18,12 +18,13 @@ export const MovieCard = () => {
     fetchMovie();
   }, []);
 
+  console.log(displayMovie);
   const fetchMovie = async () => {
     setIsLoading(true);
-    const query = `page=1&limit=100`;
+    const query = `page=0&size=100`;
     const res = await callFetchMovie(query);
     if (res.data) {
-      setDisplayMovie(res.data.items);
+      setDisplayMovie(res.data.content);
       setIsLoading(false);
     } else {
       message.error("Can not call api fetchMovie!");
@@ -49,7 +50,7 @@ export const MovieCard = () => {
                 }}
                 span={screens.sm ? 12 : 24}
                 md={screens.xl ? 6 : screens.md ? 8 : screens.sm ? 12 : 24}
-                key={item._id}
+                key={item.id}
               >
                 <Card
                   bodyStyle={{ padding: 0 }}
@@ -91,7 +92,7 @@ export const MovieCard = () => {
                         width: screens.lg ? 250 : screens.md ? 200 : 250,
                         height: 35,
                       }}
-                      onClick={() => handleDetailMovie(item._id)} 
+                      onClick={() => handleDetailMovie(item.id)} 
                     >
                       MUA VÉ
                     </Button>,
@@ -102,7 +103,7 @@ export const MovieCard = () => {
                     title={
                       <div
                         className="text-[#4184b0] text-lg hover:underline hover:cursor-pointer"
-                        onClick={() => handleDetailMovie(item._id)}
+                        onClick={() => handleDetailMovie(item.id)}
                       >
                         {item.name}
                       </div>

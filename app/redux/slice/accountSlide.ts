@@ -10,37 +10,41 @@ interface IState {
   user: {
     _id: string;
     email: string;
-    name: string;
-    address: string;
-    gender: string;
+    firstName: string;
+    lastName: string;
+    // address: string;
+    // gender: string;
     role: {
-      _id: string;
+      id: string;
       name: string;
       permissions: {
-        _id: string;
+        id: string;
         name: string;
         apiPath: string;
         method: string;
         module: string;
       }[];
     };
-    bookings: {
-      _id: string;
-      ma_GD: string;
-      total_price: string;
-      movie: {
-        name: string;
-      };
-      seats: string[];
-      isPayment: boolean;
-    }[];
+    // bookings: {
+    //   _id: string;
+    //   ma_GD: string;
+    //   total_price: string;
+    //   movie: {
+    //     name: string;
+    //   };
+    //   seats: string[];
+    //   isPayment: boolean;
+    // }[];
   };
 }
 
-export const fetchAccount = createAsyncThunk("acount/fetchAcount", async () => {
-  const response = await callFetchAccount();
-  return response.data;
-});
+export const fetchAccount = createAsyncThunk(
+  "acount/fetchAcount",
+  async ({ accessToken }: { accessToken: String }) => {
+    const response = await callFetchAccount(accessToken);
+    return response.data;
+  }
+);
 
 const initialState: IState = {
   isAuthenticated: false,
@@ -51,26 +55,28 @@ const initialState: IState = {
   user: {
     _id: "",
     email: "",
-    name: "",
-    address: "",
-    gender: "",
+    firstName: "",
+    lastName: "",
+    // name: "",
+    // address: "",
+    // gender: "",
     role: {
-      _id: "",
+      id: "",
       name: "",
       permissions: [],
     },
-    bookings: [
-      {
-        _id: "",
-        ma_GD: "",
-        total_price: "",
-        movie: {
-          name: "",
-        },
-        seats: [],
-        isPayment: false,
-      },
-    ],
+    // bookings: [
+    //   {
+    //     _id: "",
+    //     ma_GD: "",
+    //     total_price: "",
+    //     movie: {
+    //       name: "",
+    //     },
+    //     seats: [],
+    //     isPayment: false,
+    //   },
+    // ],
   },
 };
 
@@ -83,8 +89,9 @@ export const accountSlice = createSlice({
       state.isLoading = false;
       state.user._id = action?.payload?._id;
       state.user.email = action.payload.email;
-      state.user.name = action.payload.name;
-      // state.user.role = action?.payload?.role;
+      state.user.firstName = action.payload.firstName;
+      state.user.lastName = action.payload.lastName;
+      state.user.role = action?.payload?.role;
       // state.user.permissions = action?.payload?.permissions;
     },
     setLogoutAction: (state, action) => {
@@ -93,15 +100,13 @@ export const accountSlice = createSlice({
       state.user = {
         _id: "",
         email: "",
-        name: "",
-        address: "",
-        gender: "",
+        firstName: "",
+        lastName: "",
         role: {
-          _id: "",
+          id: "",
           name: "",
           permissions: [],
         },
-        bookings: [],
       };
     },
     setRefreshTokenAction: (state, action) => {
@@ -123,13 +128,15 @@ export const accountSlice = createSlice({
       if (action.payload) {
         state.isAuthenticated = true;
         state.isLoading = false;
-        state.user._id = action?.payload?._id;
+        state.user._id = action?.payload?.id;
         state.user.email = action.payload.email;
-        state.user.name = action.payload.name;
-        state.user.address = action.payload.address;
-        state.user.gender = action.payload.gender;
+        state.user.firstName = action.payload.firstName;
+        state.user.lastName = action.payload.lastName;
+        // state.user.name = action.payload.name;
+        // state.user.address = action.payload.address;
+        // state.user.gender = action.payload.gender;
         state.user.role = action?.payload?.role;
-        state.user.bookings = action?.payload?.bookings;
+        // state.user.bookings = action?.payload?.bookings;
         // state.user.permissions = action?.payload?.user?.permissions;
       }
     });

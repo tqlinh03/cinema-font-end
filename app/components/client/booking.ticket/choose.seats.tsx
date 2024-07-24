@@ -1,29 +1,56 @@
 "use client";
-import { callBookingSeats } from "@/app/config/api";
+import { callBookingSeats, callCreateOrder, callFetchRoomById } from "@/app/config/api";
+import { useAppSelector } from "@/app/redux/hook";
 import {
   Pricing,
-  SeatsioEventManager,
   SeatsioSeatingChart,
 } from "@seatsio/seatsio-react";
-import { Button, Col, Row, message } from "antd";
+import { Button, Row, message } from "antd";
 import React, { useEffect, useState } from "react";
+
+interface orderProps {
+  seatType: string;
+  price: number;
+  seatNumber: string;
+}
 
 interface BookingProps {
   setTotalPrice: (v: number) => void;
   setSeats: (v: string[]) => void;
+  setObject: (v: any) => void;
+  roomId: string | null;
+  showtimeId: string | null;
 }
 
-export const ChooseSeats = ({ setTotalPrice, setSeats }: BookingProps) => {
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-  //const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedObject, setSelectedObject] = useState<any[]>([]);
 
-  const handleObjectSelected = (object: any) => {
-    setSelectedObject((prevSelectedObject) => [...prevSelectedObject, object]);
+
+export const ChooseSeats = ({ setTotalPrice, setSeats, roomId,showtimeId, setObject }: BookingProps) => {
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [selectedObject, setSelectedObject] = useState<any[]>([]);
+  // const [object, setObject] = useState<any>([]);
+  // const [order, setOrder] = useState<orderProps[]>([]);
+  const [roomCode, setRoomCode] = useState<string>("");
+
+
+  useEffect(() => {
+    if (roomId) {
+      const data = async () => {
+        const res = await callFetchRoomById(+roomId);
+        if(res.status === 200) {
+          setRoomCode(res.data.code);
+        }
+      }
+      data();
+    }
+  }, [roomId]); 
+
+  const handleObjectSelected = (objectNew: any) => {
+    setSelectedObject((prevSelectedObject) => [...prevSelectedObject, objectNew]);
     setSelectedSeats((prevSelectedSeats) => [
       ...prevSelectedSeats,
-      object.label,
+      objectNew.label,
     ]);
+    setObject((object: any) => [...object, objectNew]);
   };
 
   useEffect(() => {
@@ -41,6 +68,19 @@ export const ChooseSeats = ({ setTotalPrice, setSeats }: BookingProps) => {
     setTotalPrice(newTotalPrice);
   }, [selectedObject]);
 
+  // useEffect(() => {
+  //   setOrder([]);
+  //   object.map((item: any) => {
+  //     const orderItem = {
+  //       seatType: item.category.label,
+  //       price: item.pricing.price,
+  //       seatNumber: item.label,
+  //       showtimeId: showtimeId
+  //     };
+  //     setOrder((order) => [...order, orderItem]);
+  //   });
+  // }, [object]);
+
   const pricing: Pricing = [
     { category: "1", price: 1000 },
     { category: "2", price: 2000 },
@@ -56,13 +96,26 @@ export const ChooseSeats = ({ setTotalPrice, setSeats }: BookingProps) => {
     }
   };
 
+  // const handleTest = async () => {
+  //   console.log(1);
+  //   try {
+  //     const order_ = {order, userId};
+  //     console.log("order", order_);
+  //     const res = await callCreateOrder(order_);
+  //     console.log("order", res);
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   }
+  // }
+  // console.log("order", order);
+
   return (
     <div>
       {/* <Button onClick={() => handleBookingSeats(selectedSeats, totalPrice)}>Booking</Button> */}
       <Row style={{ height: 500 }}>
         <SeatsioSeatingChart
           workspaceKey="2ddd4138-617c-4d94-9ff5-6d4ff6f79a7d"
-          event="2c219f18-9856-4bee-9ca8-5e56e4c633cb"
+          event={roomCode}
           pricing={pricing}
           priceFormatter={(price) => price + " VNĐ"}
           region="oc"
@@ -81,14 +134,6 @@ export const ChooseSeats = ({ setTotalPrice, setSeats }: BookingProps) => {
           }}
         />
       </Row>
-
-      {/* <SeatsioEventManager
-        secretKey="b82a0d82-a8a4-4790-ade9-32a408c2de61"
-        event="2c219f18-9856-4bee-9ca8-5e56e4c633cb"
-        mode="manageObjectStatuses"
-        session="start"
-        region="oc"
-      /> */}
     </div>
   );
 };

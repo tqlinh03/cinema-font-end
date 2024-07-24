@@ -69,7 +69,7 @@ export const CommentMovie = ({ movieId }: { movieId: number }) => {
     <>
       {comments.length > 0 && <CommentList comments={comments} />}
       <Comment
-        avatar={<Avatar>{user?.name.substring(0, 1).toUpperCase()}</Avatar>}
+        avatar={<Avatar>{user?.lastName.substring(0, 1).toUpperCase()}</Avatar>}
         content={
           <Editor
             onChange={handleChange}

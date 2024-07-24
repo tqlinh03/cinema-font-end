@@ -1,7 +1,11 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { Image, Popconfirm, message, notification } from "antd";
-import { callDeleteMovie, callDeletePermission } from "@/app/config/api";
+import { ConfigProvider, Image, Popconfirm, message, notification } from "antd";
+import {
+  callDeleteMovie,
+  callDeletePermission,
+  callFetchMovie,
+} from "@/app/config/api";
 import { useAppDispatch, useAppSelector } from "@/app/redux/hook";
 import { Button, Space } from "antd/lib";
 import { IMovie, IPermission } from "@/app/types/backend";
@@ -15,17 +19,21 @@ import { ALL_PERMISSIONS } from "@/app/config/permission";
 import { fetchMovie, setSingleMovie } from "@/app/redux/slice/movieSlide";
 import { useRouter } from "next/navigation";
 import moment from "moment";
+import { Locale } from "antd/es/locale";
+import vi_VN from "antd/es/locale/vi_VN";
+import Link from "next/link";
 
 export const AllMovie = () => {
   const tableRef = useRef<ActionType>();
-  const router = useRouter()
+  const router = useRouter();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dataInit, setDataInit] = useState<IPermission | null>(null);
+  const [meta, setMeta] = useState({ number: 1, size: 10, totalElements: 0 });
+  const [locale, setLocal] = useState<Locale>(vi_VN);
 
-
-  const movie = useAppSelector((state) => state.movie.result);
-  const meta = useAppSelector((state) => state.movie.meta);
-  const isFetching = useAppSelector((state) => state.movie.isFetching);
+  // const movie = useAppSelector((state) => state.movie.result);
+  // const meta = useAppSelector((state) => state.movie.meta);
+  // const isFetching = useAppSelector((state) => state.movie.isFetching);
   const dispath = useAppDispatch();
 
   const reloadTable = () => {
@@ -35,8 +43,9 @@ export const AllMovie = () => {
   const handleDeleteMovie = async (_id: string | undefined) => {
     if (_id) {
       const res = await callDeleteMovie(+_id);
-      if (res && !res.data.response) {
-        message.success("Delete success");
+      console.log(res);
+      if (res && !res.data.error) {
+        message.success("Xóa thành công");
         reloadTable();
       } else {
         notification.error({
@@ -49,89 +58,95 @@ export const AllMovie = () => {
 
   const columns: ProColumns<IMovie>[] = [
     {
-      title: "Id",
-      dataIndex: "_id",
+      title: "STT",
       // width: "10%",
-    },
-    {
-      title: "Image",
-      dataIndex: "img",
-      width: "10%",
       render(dom, entity, index, action, schema) {
-        return <Image width={200} src={entity.img} />;
+        return <p style={{ paddingLeft: 10, marginBottom: 0 }}>{index + 1}</p>;
       },
     },
     {
-      title: "Name",
+      title: "ẢNH",
+      dataIndex: "img",
+      render(dom, entity, index, action, schema) {
+        return <Image width={100} src={entity.img} />;
+      },
+    },
+    {
+      title: "TÊN PHIM",
       dataIndex: "name",
     },
 
     {
-      title: "Description",
+      title: "GIỚI THIỆU",
       dataIndex: "description",
       // width: "20%",
       hideInSearch: true,
     },
     {
-      title: "Time",
+      title: "THỜI LƯỢNG",
       dataIndex: "time",
-      width: "5%",
+      // width: "5%",
       render(dom, entity, index, action, schema) {
-        return <><span>{entity.time} Phút</span></>;
+        return (
+          <>
+            <span>{entity.time} Phút</span>
+          </>
+        );
       },
     },
 
     {
-      title: "ReleaseDate",
-      dataIndex: "ReleaseDate",
+      title: "NGÀY CÔNG CHIẾU",
       render(dom, entity, index, action, schema) {
-        return <>{moment(entity.ReleaseDate).format("DD/MM/YYYY")}</>;
+        return <>{moment(entity.releaseDate).format("DD/MM/YYYY")}</>;
       },
     },
 
     {
-      title: "CreatedAt",
-      dataIndex: "createdAt",
-      width: "10%",
+      title: "TẠO LÚC",
+      // width: "10%",
       render(dom, entity, index, action, schema) {
-        return <>{moment(entity?.createdAt).format("DD/MM/YYYY HH:mm:ss")}</>;
+        return <>{moment(entity?.createdDate).format("DD/MM/YYYY HH:mm:ss")}</>;
       },
     },
     {
-      title: "UpdatedAt",
-      dataIndex: "updatedAt",
-      width: "5%",
-      hideInSearch: true,render(dom, entity, index, action, schema) {
-        return <>{moment(entity.updatedAt).format("DD/MM/YYYY HH:mm:ss")}</>;
+      title: "CẬP NHẬT LÚC",
+      // width: "5%",
+      hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return (
+          <>{moment(entity.lastModifiedDate).format("DD/MM/YYYY HH:mm:ss")}</>
+        );
       },
     },
     {
-      title: "operation",
+      title: "HÀNH ĐỘNG",
       // dataIndex: "_id",
-      width: "5%",
+      // width: "5%",
 
       hideInSearch: true,
       render: (dom, entity) => (
         <Space size="middle">
-          <Access permission={ALL_PERMISSIONS.PERMISSIONS.UPDATE} hideChildren>
+          <Access permission={ALL_PERMISSIONS.MOVIES.UPDATE} hideChildren>
             <a>
               <EditOutlined
-                onClick={ async() => {
-                  await dispath(setSingleMovie(entity))
-                  router.push(`/admin/movie/${entity._id}`)
+                style={{ color: "darkorange"}} 
+                onClick={async () => {
+                  await dispath(setSingleMovie(entity));
+                  router.push(`/admin/movie/${entity.id}`);
                 }}
               />
             </a>
           </Access>
-          <Access permission={ALL_PERMISSIONS.PERMISSIONS.DELETE} hideChildren>
+          <Access permission={ALL_PERMISSIONS.MOVIES.DELETE} hideChildren>
             <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => handleDeleteMovie(entity._id)}
-              okText="Delete"
-              cancelText="Cancel"
+              title="Bạn có muốn xóa?"
+              onConfirm={() => handleDeleteMovie(entity.id)}
+              okText="xóa"
+              cancelText="Hủy"
             >
               <a>
-                <DeleteOutlined />
+              <DeleteOutlined  style={{ color: "red"}} />
               </a>
             </Popconfirm>
           </Access>
@@ -183,49 +198,59 @@ export const AllMovie = () => {
 
   return (
     <div className="mt-4 bg-white">
-      <Access permission={ALL_PERMISSIONS.PERMISSIONS.GET_PAGINATE}>
-        <DataTable<IMovie>
-          actionRef={tableRef}
-          rowKey="_id"
-          headerTitle="Permissions list"
-          columns={columns}
-          dataSource={movie}
-          loading={isFetching}
-          request={async (params, sort, filter): Promise<any> => {
-            const msg = {
-              page: params.current,
-              limit: params.pageSize,
-            };
-            const query = buildQuery(msg, sort, filter);
-            dispath(fetchMovie({ query }));
-          }}
-          scroll={{ x: true }}
-          pagination={{
-            current: meta.currentPage,
-            pageSize: meta.itemsPerPage,
-            showSizeChanger: true,
-            total: meta.totalPages,
-            showTotal: (total, range) => {
+      <Access permission={ALL_PERMISSIONS.MOVIES.GET_PAGINATE}>
+        <ConfigProvider locale={locale}>
+          <DataTable<IMovie>
+            actionRef={tableRef}
+            rowKey="id"
+            headerTitle="DANH SÁCH PHIM"
+            columns={columns}
+            // dataSource={movie}
+            // loading={isFetching}
+            request={async (params, sort, filter): Promise<any> => {
+              const msg = {
+                page: (params.current ?? 1) - 1,
+                size: params.pageSize,
+              };
+              const query = buildQuery(msg, sort, filter);
+              const response = await callFetchMovie(query);
+              console.log(response.data.content)
+              dispath(fetchMovie({ query }));
+              setMeta(response.data.meta);
+              return {
+                data: response.data.content,
+                success: true,
+              };
+            }}
+            scroll={{ x: true }}
+            pagination={{
+              current: meta.number + 1,
+              pageSize: meta.size,
+              showSizeChanger: true,
+              total: meta.totalElements,
+              showTotal: (total, range) => {
+                return (
+                  <div>
+                    {range[0]}-{range[1]} trên {total}
+                  </div>
+                );
+              },
+            }}
+            rowSelection={false}
+            toolBarRender={(_action, _rows): any => {
               return (
-                <div>
-                  {range[0]}-{range[1]} trên {total} rows
-                </div>
+                <Link href={"/admin/movie/new"}>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                >
+                  Thêm bộ phim mới
+                </Button>
+                </Link>
               );
-            },
-          }}
-          rowSelection={false}
-          toolBarRender={(_action, _rows): any => {
-            return (
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setOpenModal(true)}
-              >
-                Thêm mới
-              </Button>
-            );
-          }}
-        />
+            }}
+          />
+        </ConfigProvider>
       </Access>
 
       <PermissionModal

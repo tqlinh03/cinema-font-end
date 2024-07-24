@@ -55,8 +55,8 @@ export const PermissionModal = ({
     const { name, apiPath, method, module } = values;
   
     const permission = {  name, apiPath, method, module };
-    if(dataInit?._id) {
-      const res = await callUpdatePermission(+dataInit._id, permission);
+    if(dataInit?.id) {
+      const res = await callUpdatePermission(+dataInit.id, permission);
       if(res.data) {
         message.success("Update success role");
         handleCancel();
@@ -92,7 +92,7 @@ export const PermissionModal = ({
   return ( 
     <>
       <Modal
-        title={dataInit?._id ? "Update Permission" : "Add Permission"}
+        title={dataInit?.id ? "Update Permission" : "Add Permission"}
         footer={null}
         open={openModal}
         onCancel={handleCancel}
@@ -154,7 +154,7 @@ export const PermissionModal = ({
 
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 15 }}>
             <Button type="primary" htmlType="submit">
-              {dataInit?._id ? "Update" : "Create"}
+              {dataInit?.id ? "Update" : "Create"}
             </Button>
             <Button className="bg-zinc-300 ml-2" onClick={handleCancel}>
               Cancel

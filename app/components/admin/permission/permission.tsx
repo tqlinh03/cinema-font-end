@@ -1,8 +1,7 @@
-
 "use client";
-import React, { useRef, useState } from "react";
-import { Popconfirm, message, notification } from "antd";
-import { callDeletePermission } from "@/app/config/api";
+import React, { useEffect, useRef, useState } from "react";
+import { ConfigProvider, Popconfirm, message, notification } from "antd";
+import { callDeletePermission, callFetchPermission } from "@/app/config/api";
 import { useAppDispatch, useAppSelector } from "@/app/redux/hook";
 import { Button, Space } from "antd/lib";
 import { IPermission } from "@/app/types/backend";
@@ -15,16 +14,19 @@ import { fetchPermission } from "@/app/redux/slice/permissionSlide";
 import { colorMethod } from "@/app/config/utils";
 import { Access } from "../../share/access";
 import { ALL_PERMISSIONS } from "@/app/config/permission";
+import moment from "moment";
+import { Locale } from "antd/es/locale";
+import vi_VN from "antd/es/locale/vi_VN";
+import { red } from "@ant-design/colors";
 
 export const Permission = () => {
   const tableRef = useRef<ActionType>();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [dataInit, setDataInit] = useState<IPermission | null>(null)
-  
-  const permission = useAppSelector((state) => state.permission.result);
-  const meta = useAppSelector((state) => state.permission.meta);
-  const isFetching = useAppSelector((state) => state.permission.isFetching)
-  const dispath = useAppDispatch();
+  const [dataInit, setDataInit] = useState<IPermission | null>(null);
+  const [meta, setMeta] = useState({ number: 1, size: 10, totalElements: 0 });
+  const [locale, setLocal] = useState<Locale>(vi_VN);
+  const dispatch = useAppDispatch();
+  // const permission = useAppSelector((state) => state.permission.result);
 
   const reloadTable = () => {
     tableRef?.current?.reload();
@@ -47,13 +49,17 @@ export const Permission = () => {
 
   const columns: ProColumns<IPermission>[] = [
     {
-      title: "Id",
-      dataIndex: "_id",
+      title: "STT",
+      hideInSearch: true,
       // width: "10%",
+      render(dom, entity, index, action, schema) {
+        return <p style={{ paddingLeft: 10, marginBottom: 0 }}>{index + 1}</p>;
+      },
     },
     {
-      title: "name",
+      title: "Name",
       dataIndex: "name",
+      hideInSearch: true,
       // width: "20%",
     },
     {
@@ -61,7 +67,6 @@ export const Permission = () => {
       dataIndex: "apiPath",
       // width: "20%",
       hideInSearch: true,
-      
     },
 
     {
@@ -71,9 +76,18 @@ export const Permission = () => {
       hideInSearch: true,
       render(dom, entity, index, action, schema) {
         return (
-            <p style={{ paddingLeft: 10, fontWeight: 'bold', marginBottom: 0, color: colorMethod(entity?.method as string) }}>{entity?.method || ''}</p>
-        )
-    },
+          <p
+            style={{
+              paddingLeft: 10,
+              fontWeight: "bold",
+              marginBottom: 0,
+              color: colorMethod(entity?.method as string),
+            }}
+          >
+            {entity?.method || ""}
+          </p>
+        );
+      },
     },
     {
       title: "Module",
@@ -83,51 +97,44 @@ export const Permission = () => {
     },
     {
       title: "CreatedAt",
-      dataIndex: "createdAt",
+      dataIndex: "createdDate",
       // width: "20%",
       hideInSearch: true,
+      render: (dom, entity, index, action, schema) => {
+        return <>{moment(entity.createdDate).format("DD-MM-YYYY HH:mm:ss")}</>;
+      },
     },
-    {
-      title: "UpdatedAt",
-      dataIndex: "updatedAt",
-      // width: "20%",
-      hideInSearch: true,
-    },
+    // {
+    //   title: "UpdatedAt",
+    //   dataIndex: "updatedAt",
+    //   // width: "20%",
+    //   hideInSearch: true,
+    // },
     {
       title: "operation",
       // dataIndex: "_id",
       hideInSearch: true,
       render: (dom, entity) => (
         <Space size="middle">
-          <Access
-            permission={ALL_PERMISSIONS.PERMISSIONS.UPDATE}
-            hideChildren
-          >
+          <Access permission={ALL_PERMISSIONS.PERMISSIONS.UPDATE} hideChildren>
             <a>
               <EditOutlined
                 onClick={() => {
-                  setDataInit(entity)
-                  setOpenModal(true)
+                  setDataInit(entity);
+                  setOpenModal(true);
                 }}
+                style={{ color: "darkorange" }}
               />
             </a>
           </Access>
-          <Access
-            permission={ALL_PERMISSIONS.PERMISSIONS.DELETE}
-            hideChildren
-          >
+          <Access permission={ALL_PERMISSIONS.PERMISSIONS.DELETE} hideChildren>
             <Popconfirm
               title="Sure to delete?"
-              onConfirm={() => handleDeleteRole(entity._id)}
+              onConfirm={() => handleDeleteRole(entity.id)}
               okText="Delete"
               cancelText="Cancel"
-            
             >
-              
-              <a>
-                <DeleteOutlined />
-              
-              </a>
+              <DeleteOutlined style={{ color: red[5] }} />
             </Popconfirm>
           </Access>
         </Space>
@@ -142,27 +149,28 @@ export const Permission = () => {
     if (clone.method) clone.method = `/${clone.method}/i`;
     if (clone.module) clone.module = `/${clone.module}/i`;
 
-
     let temp = queryString.stringify(clone);
 
     let sortBy = "";
     if (sort && sort.name) {
-        sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+      sortBy = sort.name === "ascend" ? "sort=name" : "sort=-name";
     }
     if (sort && sort.apiPath) {
-        sortBy = sort.apiPath === 'ascend' ? "sort=apiPath" : "sort=-apiPath";
+      sortBy = sort.apiPath === "ascend" ? "sort=apiPath" : "sort=-apiPath";
     }
     if (sort && sort.method) {
-        sortBy = sort.method === 'ascend' ? "sort=method" : "sort=-method";
+      sortBy = sort.method === "ascend" ? "sort=method" : "sort=-method";
     }
     if (sort && sort.module) {
-        sortBy = sort.module === 'ascend' ? "sort=module" : "sort=-module";
+      sortBy = sort.module === "ascend" ? "sort=module" : "sort=-module";
     }
     if (sort && sort.createdAt) {
-        sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+      sortBy =
+        sort.createdAt === "ascend" ? "sort=createdAt" : "sort=-createdAt";
     }
     if (sort && sort.updatedAt) {
-        sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+      sortBy =
+        sort.updatedAt === "ascend" ? "sort=updatedAt" : "sort=-updatedAt";
     }
 
     // //mặc định sort theo updatedAt
@@ -170,62 +178,62 @@ export const Permission = () => {
     //     temp = `${temp}&sort=-updatedAt`;
     // } else {
     //     temp = `${temp}&${sortBy}`;
-    // } 
+    // }
 
     return temp;
-}
+  };
 
   return (
     <div className="mt-4 bg-white">
-      <Access
-          permission={ALL_PERMISSIONS.PERMISSIONS.GET_PAGINATE}
-      >
-        <DataTable<IPermission>
-          actionRef={tableRef}
-          rowKey="_id"
-          headerTitle="Permissions list"
-          columns={columns}
-          dataSource={permission}
-          loading={isFetching}
-          request={async ( 
-            params, 
-            sort, 
-            filter
-          ): Promise<any> => {
-            const msg = ({
-              page: params.current,
-              limit: params.pageSize,
-            });
-            const query = buildQuery(msg, sort, filter)
-            dispath(fetchPermission({query}));
-          }}
-          scroll={{ x: true }}
-          pagination={{
-            current: meta.currentPage,
-            pageSize: meta.itemsPerPage,
-            showSizeChanger: true,  
-            total: meta.totalPages, 
-            showTotal: (total, range) => {
+      <Access permission={ALL_PERMISSIONS.PERMISSIONS.GET_PAGINATE}>
+        <ConfigProvider locale={locale}>
+          <DataTable<IPermission>
+            actionRef={tableRef}
+            rowKey="id"
+            headerTitle="Danh sách quyền hạn"
+            columns={columns}
+            request={async (params, sort, filter): Promise<any> => {
+              const msg = {
+                page: (params.current ?? 1) - 1,
+                size: params.pageSize,
+              };
+              const query = buildQuery(msg, sort, filter);
+              const response = await callFetchPermission(query);
+              dispatch(fetchPermission({ query }));
+              setMeta(response.data.meta);
+              return {
+                data: response.data.content,
+                success: true,
+              };
+            }}
+            scroll={{ x: true }}
+            pagination={{
+              current: meta.number + 1,
+              pageSize: meta.size,
+              showSizeChanger: true,
+              total: meta.totalElements,
+              showTotal: (total, range) => {
+                return (
+                  <div>
+                    {range[0]}-{range[1]} trên {total}
+                  </div>
+                );
+              },
+            }}
+            rowSelection={false}
+            toolBarRender={(_action, _rows): any => {
               return (
-                <div>
-                  {range[0]}-{range[1]} trên {total} rows
-                </div>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={() => setOpenModal(true)}
+                >
+                  Thêm mới
+                </Button>
               );
-            },
-          }}
-          rowSelection={false}
-          toolBarRender={(_action, _rows): any => {
-            return (
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setOpenModal(true)}
-              >
-                Thêm mới
-              </Button>
-            );
-          }}
-        />     
+            }}
+          />
+        </ConfigProvider>
       </Access>
 
       <PermissionModal

@@ -27,8 +27,8 @@ const ModuleApi = (props: IProps) => {
     const child = listPermissions?.find(item => item.module === name);
     if (child) {
       child?.permissions?.forEach(item => {
-        if (item._id)
-          form.setFieldValue(["permissions", item._id], value)
+        if (item.id)
+          form.setFieldValue(["permissions", item.id], value)
       })
     }
   }
@@ -38,9 +38,9 @@ const ModuleApi = (props: IProps) => {
     //check all
     const temp = listPermissions?.find(item => item.module === parent);
     if (temp) {
-      const restPermission = temp?.permissions?.filter(item => item._id !== child);
+      const restPermission = temp?.permissions?.filter(item => item.id !== child);
       if (restPermission && restPermission.length) {
-        const allTrue = restPermission.every(item => form.getFieldValue(["permissions", item._id as string]));
+        const allTrue = restPermission.every(item => form.getFieldValue(["permissions", item.id as string]));
         form.setFieldValue(["permissions", parent], allTrue && value)
       }
     }
@@ -77,7 +77,7 @@ return (
                       <Card size="small" bodyStyle={{ display: "flex", flex: 1, flexDirection: 'row' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                           <ProFormSwitch
-                            name={["permissions", value._id as string]}
+                            name={["permissions", value.id as string]}
                             fieldProps={{
                               defaultChecked: false,
                               onChange: (v) => handleSingleCheck(v, (value) as string, item.module)

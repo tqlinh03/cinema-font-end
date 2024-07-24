@@ -1,11 +1,10 @@
-
 "use client";
 import React, { useRef, useState } from "react";
-import { Popconfirm, message, notification } from "antd";
-import {callDeleteUser } from "@/app/config/api";
+import { ConfigProvider, Popconfirm, Tag, message, notification } from "antd";
+import { callDeleteUser, callFetchUser } from "@/app/config/api";
 import { useAppDispatch, useAppSelector } from "@/app/redux/hook";
 import { Button, Space } from "antd/lib";
-import {  IUser } from "@/app/types/backend";
+import { IUser } from "@/app/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from "@ant-design/pro-components";
 import { DataTable } from "../../table/dataTable";
@@ -14,16 +13,22 @@ import { fetchUser } from "@/app/redux/slice/userSlide";
 import { UserModal } from "../../modal/user-modal";
 import { Access } from "../../share/access";
 import { ALL_PERMISSIONS } from "@/app/config/permission";
- 
+import { Locale } from "antd/es/locale";
+import vi_VN from "antd/es/locale/vi_VN";
+import moment from "moment";
+import { red } from "@ant-design/colors";
+
 export const User = () => {
   const tableRef = useRef<ActionType>();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [dataInit, setDataInit] = useState<IUser | null>(null)
-  
-  const user = useAppSelector((state) => state.user.result);
-  const meta = useAppSelector((state) => state.user.meta);
-  const isFetching = useAppSelector((state) => state.user.isFetching)
-  const dispath = useAppDispatch();
+  const [dataInit, setDataInit] = useState<IUser | null>(null);
+  const [meta, setMeta] = useState({ number: 1, size: 10, totalElements: 0 });
+  const [locale, setLocal] = useState<Locale>(vi_VN);
+
+  // const user = useAppSelector((state) => state.user.result);
+  // const meta = useAppSelector((state) => state.user.meta);
+  // const isFetching = useAppSelector((state) => state.user.isFetching)
+  const dispatch = useAppDispatch();
 
   const reloadTable = () => {
     tableRef?.current?.reload();
@@ -46,83 +51,143 @@ export const User = () => {
 
   const columns: ProColumns<IUser>[] = [
     {
-      title: "Id",
-      dataIndex: "_id",
-      // width: "10%",
+      title: "STT",
+      dataIndex: "id",
+      render(dom, entity, index, action, schema) {
+        return <p style={{ paddingLeft: 10, marginBottom: 0 }}>{index + 1}</p>;
+      },
     },
     {
-      title: "name",
-      dataIndex: "name",
+      title: "HỌ VÀ TÊN ĐỆM",
+      dataIndex: "firstName",
       // width: "20%",
+      hideInSearch: true,
     },
     {
-      title: "Email",
+      title: "TÊN",
+      dataIndex: "lastName",
+      // width: "20%",
+      hideInSearch: true,
+    },
+    {
+      title: "EMAIL",
       dataIndex: "email",
       // width: "20%",
       hideInSearch: true,
-      
     },
 
     {
-      title: "Address",
-      dataIndex: "address",
+      title: "NGÀY SINH",
+      dataIndex: "dateOfBirth",
       // width: "20%",
       hideInSearch: true,
-     
+      render(dom, entity, index, action, schema) {
+        return (
+          <p>
+            {entity?.dateOfBirth
+              ? moment(entity?.dateOfBirth).format("DD/MM/YYYY")
+              : "-"}
+          </p>
+        );
+      },
     },
     {
-      title: "Gender",
-      dataIndex: "gender",
+      title: "KÍCH HOAT TÀI KHOẢN",
+      // dataIndex: "dateOfBirth",
       // width: "20%",
       hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return (
+          <Tag color={entity.accountLocked ? "red" : "green"}>
+          {entity?.enabled ? "ĐÃ KÍCH HOẠT" : "CHƯA KÍCH HOẠT"}
+        </Tag>
+        );
+      },
     },
     {
-      title: "CreatedAt",
-      dataIndex: "createdAt",
+      title: "KHÓA TÀI KHOẢN",
+      // dataIndex: "dateOfBirth",
       // width: "20%",
       hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return (
+         
+            <Tag color={entity.accountLocked ? "red" : "green"}>
+              {entity.accountLocked ? "ĐÃ KHÓA" : "CHƯA KHÓA"}
+            </Tag>
+        );
+      },
     },
     {
-      title: "UpdatedAt",
-      dataIndex: "updatedAt",
+      title: "VAI TRÒ",
+      hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return (
+           <Tag color="geekblue">
+           {entity?.role?.name} 
+         </Tag>
+        );
+      }
+    },
+    {
+      title: "NGÀY TẠO",
+      dataIndex: "createDate",
       // width: "20%",
       hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return <p>{moment(entity?.createDate).format("DD/MM/YYYY") || "-"}</p>;
+      },
     },
     {
-      title: "operation",
+      title: "CẬP NHẬT LÚC",
+      dataIndex: "lastModifiedDate",
+      // width: "20%",
+      hideInSearch: true,
+      render(dom, entity, index, action, schema) {
+        return (
+          <p>
+            {entity?.lastModifiedDate
+              ? moment(entity?.lastModifiedDate).format("DD/MM/YYYY")
+              : "-"}
+          </p>
+        );
+      },
+    },
+    {
+      title: "HÀNH ĐỘNG",
       // dataIndex: "_id",
       hideInSearch: true,
       render: (dom, entity) => (
         <Space size="middle">
-          <Access
+          {/* <Access
             permission={ALL_PERMISSIONS.USERS.UPDATE}
             hideChildren
-          >
-              <EditOutlined
-                onClick={() => {
-                  setDataInit(entity)
-                  setOpenModal(true)
-                }}
-              />
-          </Access>
+          > */}
+          <a>
+            <EditOutlined
+             style={{ color: "darkorange"}} 
+              onClick={() => {
+                setDataInit(entity);
+                setOpenModal(true);
+              }}
+            />
+          </a>
+
+          {/* </Access>
           <Access
             permission={ALL_PERMISSIONS.USERS.DELETE}
             hideChildren
+          > */}
+          <Popconfirm
+            title="Chắc chán muốn xóa?"
+            onConfirm={() => handleDeleteUser(entity.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+           
           >
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => handleDeleteUser(entity._id)}
-              okText="Delete"
-              cancelText="Cancel"
-            
-            >
-              
-              <a>
-                <DeleteOutlined />
-              
-              </a>
-            </Popconfirm>
-          </Access>
+            <DeleteOutlined  style={{ color: "red"}} />
+          </Popconfirm>
+          {/* </Access> */}
         </Space>
       ),
     },
@@ -135,27 +200,28 @@ export const User = () => {
     if (clone.method) clone.method = `/${clone.method}/i`;
     if (clone.module) clone.module = `/${clone.module}/i`;
 
-
     let temp = queryString.stringify(clone);
 
     let sortBy = "";
     if (sort && sort.name) {
-        sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+      sortBy = sort.name === "ascend" ? "sort=name" : "sort=-name";
     }
     if (sort && sort.apiPath) {
-        sortBy = sort.apiPath === 'ascend' ? "sort=apiPath" : "sort=-apiPath";
+      sortBy = sort.apiPath === "ascend" ? "sort=apiPath" : "sort=-apiPath";
     }
     if (sort && sort.method) {
-        sortBy = sort.method === 'ascend' ? "sort=method" : "sort=-method";
+      sortBy = sort.method === "ascend" ? "sort=method" : "sort=-method";
     }
     if (sort && sort.module) {
-        sortBy = sort.module === 'ascend' ? "sort=module" : "sort=-module";
+      sortBy = sort.module === "ascend" ? "sort=module" : "sort=-module";
     }
     if (sort && sort.createdAt) {
-        sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+      sortBy =
+        sort.createdAt === "ascend" ? "sort=createdAt" : "sort=-createdAt";
     }
     if (sort && sort.updatedAt) {
-        sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+      sortBy =
+        sort.updatedAt === "ascend" ? "sort=updatedAt" : "sort=-updatedAt";
     }
 
     // //mặc định sort theo updatedAt
@@ -163,64 +229,57 @@ export const User = () => {
     //     temp = `${temp}&sort=-updatedAt`;
     // } else {
     //     temp = `${temp}&${sortBy}`;
-    // } 
+    // }
 
     return temp;
-}
+  };
 
   return (
     <div className="mt-4 bg-white">
-     
-      <Access
+      <ConfigProvider locale={locale}>
+        {/* <Access
         permission={ALL_PERMISSIONS.USERS.GET_PAGINATE}
-      >
+      > */}
         <DataTable<IUser>
           actionRef={tableRef}
-          rowKey="_id"
-          headerTitle="User list"
+          rowKey="id"
+          headerTitle="DANH SÁCH TÀI KHOẢN"
           columns={columns}
-          dataSource={user}
-          loading={isFetching}
-          scroll={{x: true}}
-          request={async ( 
-            params, 
-            sort, 
-            filter
-          ): Promise<any> => {
-            const msg = ({
-              page: params.current,
-              limit: params.pageSize,
-            });
-            const query = buildQuery(msg, sort, filter)
-            dispath(fetchUser({query}));
+          // dataSource={user}
+          // loading={isFetching}
+          scroll={{ x: true }}
+          request={async (params, sort, filter): Promise<any> => {
+            const msg = {
+              page: (params.current ?? 1) - 1,
+              size: params.pageSize,
+            };
+            const query = buildQuery(msg, sort, filter);
+            const response = await callFetchUser(query);
+            console.log(response);
+            dispatch(fetchUser({ query }));
+            setMeta(response.data.meta);
+            return {
+              data: response.data.content,
+              success: true,
+            };
           }}
           pagination={{
-            current: meta.currentPage,
-            pageSize: meta.itemsPerPage,
-            showSizeChanger: true,  
-            total: meta.totalPages, 
+            current: meta.number + 1,
+            pageSize: meta.size,
+            showSizeChanger: true,
+            total: meta.totalElements,
             showTotal: (total, range) => {
               return (
                 <div>
-                  {range[0]}-{range[1]} trên {total} rows
+                  {range[0]}-{range[1]} trên {total}
                 </div>
               );
             },
           }}
           rowSelection={false}
-          toolBarRender={(_action, _rows): any => {
-            return (
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setOpenModal(true)}
-              >
-                Thêm mới
-              </Button>
-            );
-          }}
         />
-      </Access>
+      </ConfigProvider>
+      {/* </Access> */}
       <UserModal
         openModal={openModal}
         setOpenModal={setOpenModal}

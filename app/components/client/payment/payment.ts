@@ -1,4 +1,4 @@
-import { callUpdateBookingTicket } from "@/app/config/api";
+import { callUpdateBookingTicket, callUpdatePayment } from "@/app/config/api";
 import axios from "axios";
 
 interface PaymentRecordPrpos {
@@ -29,13 +29,18 @@ export const checkPaymentRecords = async (
   paymentRecords: PaymentRecordPrpos[],
   total_price: number,
   ma_GD: string,
-  ticketId: number
+  paymentId: number
 ) => {
+  const normalizedMa_GD = ma_GD.trim().toUpperCase().replace(/_/g, '');
+
   for (const record of paymentRecords) {
-    const description = record.description;
-    const price = record.amount;
-    if (total_price >= price && description.includes(`${ma_GD}`)) {
-      await callUpdateBookingTicket(ticketId);
+    // Chuẩn hóa description
+    let { description } = record;
+    const normalizedDescription = description.trim().toUpperCase().replace(/_/g, '');
+
+    // Kiểm tra sự xuất hiện của ma_GD trong description
+    if (normalizedDescription.includes(normalizedMa_GD)) {
+      await callUpdatePayment(paymentId);
       return true;
     }
   }

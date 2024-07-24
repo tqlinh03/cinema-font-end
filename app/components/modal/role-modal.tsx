@@ -56,19 +56,19 @@ export const RoleModal = ({
 
   useEffect(() => {
     const init = async () => {
-      const res = await callFetchPermission(`page=1&limit=100`);
-      if (res.data?.items) {
-        setListPermissions(groupByPermission(res.data?.items));
+      const res = await callFetchPermission(`page=0&size=100`);
+      if (res.data?.content) {
+        setListPermissions(groupByPermission(res.data?.content));
       }
     };
     init();
   }, []);
 
   useEffect(() => {
-    if (listPermissions?.length && singleRole?._id) {
+    if (listPermissions?.length && singleRole?.id) {
       form.setFieldsValue({
         name: singleRole.name,
-        isActive: singleRole.isActive,
+        isActive: singleRole.active,
         description: singleRole.description,
       });
       const userPermissions = groupByPermission(singleRole.permissions);
@@ -78,9 +78,9 @@ export const RoleModal = ({
           const temp = userPermissions.find((z) => z.module === x.module);
 
           if (temp) {
-            const isExist = temp.permissions.find((k) => k._id === y._id);
+            const isExist = temp.permissions.find((k) => k.id === y.id);
             if (isExist) {
-              form.setFieldValue(["permissions", y._id as string], true);
+              form.setFieldValue(["permissions", y.id as string], true);
             } else allCheck = false;
           } else {
             allCheck = false;
@@ -101,12 +101,13 @@ export const RoleModal = ({
     form.setFieldsValue({
       name: singleRole.name,
       description: singleRole.description,
-      isActive: singleRole.isActive,
+      isActive: singleRole.active,
     });
   });
 
   const onFinish = async (values: any) => {
     const { name, description, isActive, permissions } = values;
+    console.log("valuse", values)
     const checkedPermissions = [];
     if (permissions) {
         for (const key in permissions) {
@@ -116,8 +117,8 @@ export const RoleModal = ({
         }
     } 
     const role = { name, description, isActive, permissions: checkedPermissions};
-    if (singleRole?._id) {
-      const res = await callUpdateRole(role, singleRole?._id);
+    if (singleRole?.id) {
+      const res = await callUpdateRole(role, singleRole?.id);
       if (res.data) {
         message.success("Update success role");
         handleCancel();
@@ -146,7 +147,7 @@ export const RoleModal = ({
   return (
     <>
       <Modal
-        title={singleRole._id ? "Update Role" : "Add Role"}
+        title={singleRole.id ? "Cập nhật vai trò" : "Thêm vai trò"}
         footer={null}
         open={openModal}
         onCancel={handleCancel}
@@ -160,25 +161,25 @@ export const RoleModal = ({
           style={{ maxWidth: 800 }}
           validateMessages={validateMessages}
         >
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label="Tên vai trò" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
 
           <Form.Item
             name="description"
-            label="Description"
+            label="Miêu tả"
             rules={[{ required: true }]}
           >
             <Input.TextArea />
           </Form.Item>
 
-          <Form.Item name="isActive" label="State" initialValue={false}>
-            <Switch checkedChildren="ACTIVE" unCheckedChildren="INACTIVE" />
+          <Form.Item name="isActive" label="Trạng thái" initialValue={false}>
+            <Switch checkedChildren="HOẠT ĐỘNG" unCheckedChildren="KHÔNG HOẠT ĐỘNG" />
           </Form.Item>
 
           <ProCard
-            title="Permission"
-            subTitle="Permissions allowed for this role"
+            title="Quyền hạn"
+            subTitle="(Quyền được phép cho vai trò này)"
             headStyle={{ color: "#d81921" }}
             style={{ marginBottom: 20 }}
             headerBordered
@@ -193,10 +194,10 @@ export const RoleModal = ({
 
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 15 }}>
             <Button type="primary" htmlType="submit">
-              {singleRole._id ? "Update" : "Create"}
+              {singleRole.id ? "Cập nhật" : "Tạo vai trò"}
             </Button>
             <Button className="bg-zinc-300 ml-2" onClick={handleCancel}>
-              Cancel
+              Hủy
             </Button>
           </Form.Item>
         </Form>

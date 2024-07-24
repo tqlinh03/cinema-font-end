@@ -36,9 +36,9 @@ export const Editor = ({
           type="primary"
         >
           {isAuthenticated === true ? 
-            "Add Comment" 
+            "Bình luận" 
           : 
-            <Link href={'/login'}> login to comment</Link>}
+            <Link href={'/login'}> Đăng nhập để bình luận</Link>}
         </Button>
       </Form.Item>
     </>

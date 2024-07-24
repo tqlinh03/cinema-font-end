@@ -109,7 +109,7 @@ export const RenderComment = ({
       >
         {showRelyCommentId.includes(comment._id) === true && (
           <Comment
-            avatar={<Avatar>{user?.name.substring(0, 1).toUpperCase()}</Avatar>}
+            avatar={<Avatar>{user?.lastName.substring(0, 1).toUpperCase()}</Avatar>}
             content={
               <Editor
                 onChange={handleChange}

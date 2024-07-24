@@ -128,14 +128,14 @@ export const LayoutClient = ({ children }: { children: React.ReactNode }) => {
           ) : (
             <Dropdown menu={{ items: itemsDropdown }} trigger={["click"]}>
               <Space style={{ cursor: "pointer" }}>
-                <span>Welcome {user?.name}</span>
-                <Avatar> {user?.name?.substring(0, 1)?.toUpperCase()} </Avatar>
+                <span>Xin chào! {user?.lastName}</span>
+                <Avatar> {user?.lastName?.substring(0, 1)?.toUpperCase()} </Avatar>
               </Space>
             </Dropdown>
           )}
         </Header>
       </div>
-      <Divider style={{ margin: 0 }} />
+      {/* <Divider style={{ margin: 0 }} /> */} 
       <Content
         style={{
           width: screens.xl
@@ -150,6 +150,7 @@ export const LayoutClient = ({ children }: { children: React.ReactNode }) => {
           // padding: screens.sm ? 640 : 390"0 48px"
           paddingLeft: screens.sm ? 48 : 0,
           paddingRight: screens.sm ? 48 : 0,
+          backgroundColor: "#FFFFFF",
         }}
       >
         <Breadcrumb style={{ margin: "16px 0" }}>
@@ -161,7 +162,7 @@ export const LayoutClient = ({ children }: { children: React.ReactNode }) => {
           style={{
             padding: 24,
             minHeight: 380,
-            // background: colorBgContainer,
+            background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
         >

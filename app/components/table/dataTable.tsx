@@ -1,7 +1,11 @@
 
 import { ParamsType, ProTable, ProTableProps } from "@ant-design/pro-components";
+import { Locale } from "antd/es/locale";
 import { ConfigProvider } from "antd/lib";
-import vi_VN from 'antd/locale/vi_VN';
+// import vi_VN from 'antd/locale/vi_VN';
+import vi_VN from 'antd/es/locale/vi_VN'
+
+
 
 export const DataTable = <
     T extends Record<string, any>,
@@ -28,12 +32,13 @@ export const DataTable = <
     rowSelection,
 }: ProTableProps<T, U, ValueType>) => {
     return (
-        <ConfigProvider locale={vi_VN}>
+        // <ConfigProvider locale={vi_VN}>
             <ProTable<T, U, ValueType>
                 columns={columns}
                 defaultData={defaultData}
                 dataSource={dataSource}
                 postData={postData}
+               
                 pagination={pagination}
                 bordered
                 // sticky={sticky}
@@ -42,7 +47,7 @@ export const DataTable = <
                 scroll={scroll}
                 params={params}
                 request={request}
-                search={search}
+                search={false}
                 polling={polling}
                 toolBarRender={toolBarRender}
                 headerTitle={headerTitle}
@@ -50,6 +55,6 @@ export const DataTable = <
                 dateFormatter={dateFormatter}
                 rowSelection={rowSelection}
             />
-        </ConfigProvider>
+        // </ConfigProvider>
     );
 };

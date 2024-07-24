@@ -4,6 +4,7 @@ import {
   callFetchMovieById,
   callFetchMovieByIdAndDate,
   callFetchShowtimeByDate,
+  callGetMovieByIdAndDate,
 } from "@/app/config/api";
 import { IMovie } from "@/app/types/backend";
 import { Card, Col, Grid, Image, Row, Spin, message } from "antd";
@@ -18,17 +19,18 @@ interface IProps {
 }
 
 interface IShowtimeProps {
-  _id?: any;
+  id?: any;
   date: Date;
   start_time: Date;
   end_time: Date;
   movie: {
-    _id: number;
+    id: number;
     name: string;
     img: string;
     description: string;
     time: number;
   };
+  roomId: number;
 }
 
 const { useBreakpoint } = Grid;
@@ -58,24 +60,25 @@ export const MovieDetail = ({ movieId }: IProps) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await callFetchMovieByIdAndDate(movieId, date);
-        if (res.data) {
-          setShowtimesDay(res.data);
+        const day = moment(date).format("YYYY-MM-DD");
+        const res = await callGetMovieByIdAndDate(movieId, day);
+        if (res.status === 200) {
+          setShowtimesDay(res.data.showtime);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
+    }; 
     fetchData();
   }, [date]);
 
   useEffect(() => {
     const fetchMovieID = async () => {
       const res = await callFetchMovieById(movieId);
-      if (res.data) {
+      if (!res.data.error) {
         setMovieDetail(res.data);
       } else {
-        message.error("Can not callFetchMovieById");
+        message.error("có lỗi xảy ra!");
       }
     };
     fetchMovieID();
@@ -133,7 +136,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
               </span>
             </Col>
             <Col span={16}>
-              <span className="text-lg">{movieDetai?.cast}</span>
+              <span className="text-lg">{movieDetai?._cast}</span>
             </Col>
           </Row>
           <Row>
@@ -162,7 +165,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
             </Col>
             <Col span={16}>
               <span className="text-lg">
-                {moment(movieDetai?.ReleaseDate).format("MM/DD/YYYY")}
+                {moment(movieDetai?.releaseDate).format("MM/DD/YYYY")}
               </span>
             </Col>
           </Row>
@@ -208,8 +211,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
                   onClick={() => handleModal(showtime, showtime.start_time)}
                   className="w-32 h-8 hover:bg-zinc-300  bg-zinc-200 flex justify-center items-center"
                 >
-                  {" "}
-                  {moment(showtime.start_time).format("HH:mm")}
+                  {moment(showtime.start_time, "HH:mm:ss").format("HH:mm")}
                 </p>
               </Col>
             ))}
@@ -225,6 +227,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
 
         <div className="flex justify-center p-8">
           {movieDetai && (
+            
             <ReactPlayer
               width={800}
               height={screens.lg ? 400 : screens.sm ? 200 : 140}
@@ -242,7 +245,7 @@ export const MovieDetail = ({ movieId }: IProps) => {
         />
       </div>
 
-      <CommentMovie movieId={movieId} />
+      {/* <CommentMovie movieId={movieId} /> */}
     </>
   );
 };

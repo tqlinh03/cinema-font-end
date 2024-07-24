@@ -10,12 +10,9 @@ interface AccessTokenResponse {
 
 const instance = axiosClient.create({
   baseURL:  process.env.NEXT_PUBLIC_BACKEND_URL,
-  // baseURL: process.env.BACKEND_URL,
   withCredentials: true
 })
 
-// console.log(process.env.BACKEND_URL);
-// alert(process.env.BACKEND_URL);
 const mutex = new Mutex();
 const NO_RETRY_HEADER = 'x-no-retry';
 
@@ -40,7 +37,7 @@ instance.interceptors.request.use(function (config) {
 });
 
 instance.interceptors.response.use(
-  (res) => res.data,
+  (res) => res,
   async (error) => {
       if (error.config && error.response
           && +error.response.status === 401

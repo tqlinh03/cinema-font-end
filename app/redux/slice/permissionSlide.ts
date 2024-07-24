@@ -5,11 +5,12 @@ import { callFetchPermission } from '@/app/config/api';
 interface IState {
     isFetching: boolean;
     meta: {
-      totalItems: number,
-      itemCount: number,
-      itemsPerPage: number,
-      totalPages: number,
-      currentPage: number
+      number: number,
+      size: number,
+      totalElements: number,
+      totalPages: number
+      first: boolean,
+      last: boolean
     },
     result: IPermission[]
 }
@@ -18,6 +19,7 @@ export const fetchPermission = createAsyncThunk(
     'permission/fetchPermission',
     async ({ query }: { query: string }) => {
         const response = await callFetchPermission(query);
+        console.log(response);
         return response;
     }
 )
@@ -26,11 +28,12 @@ export const fetchPermission = createAsyncThunk(
 const initialState: IState = {
     isFetching: true,
     meta: {
-      totalItems: 0,
-      itemCount: 0,
-      itemsPerPage: 10,
-      totalPages: 0,
-      currentPage: 1
+        number: 0,
+        size: 0,
+        totalElements: 0,
+        totalPages: 0,
+        first: false,
+        last: false
     },
     result: []
 };
@@ -62,7 +65,7 @@ export const permissionSlide = createSlice({
             if (action.payload && action.payload.data) {
                 state.isFetching = false;
                 state.meta = action.payload.data.meta;
-                state.result = action.payload.data.items;
+                state.result = action.payload.data.content;
             }
             // Add user to the state array
 

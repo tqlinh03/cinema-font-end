@@ -1,93 +1,104 @@
 "use client";
 import React, { useState } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, notification } from "antd";
+import { Button, Checkbox, Form, Input, message, notification } from "antd";
 import { useDispatch } from "react-redux";
 import { setUserLoginInfo } from "@/app/redux/slice/accountSlide";
-import { callLogin } from "@/app/config/api";
+import { callLogin, callSendCodeEmail } from "@/app/config/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ActiveAccount } from "./active-account";
 
 export const Login = () => {
   const route = useRouter();
   const dispatch = useDispatch();
-  const [isSubmit, setIsSubmit] = useState(false); 
+  const [hidden, setHiden] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>("");
+  const [isSubmit, setIsSubmit] = useState(false);
 
   const onFinish = async (values: any) => {
     const { username, password } = values;
+    setEmail(username);
     setIsSubmit(true);
     try {
-      const res = await callLogin(username, password)
-      if (res?.data) {
+      const res = await callLogin(username, password);
+      console.log("res: ", res);
+      if (res?.data.access_token) { 
         localStorage.setItem("access_token", res.data.access_token);
-        dispatch(setUserLoginInfo(res.data.user));
         route.push("/")
         // window.location.href = "/";
-      } else {
-        notification.error({
-          message: "Có lỗi xảy ra",
-          description:
-            res.data.message && Array.isArray(res.data.message)
-              ? res.data.message[0]
-              : res.data.message,
-          duration: 5,
-        });
+      }
+      if (res?.data.businessErrorCode === 303) {
+        setHiden(false);
+        await callSendCodeEmail(email);
+      }
+
+      if (res?.data.businessErrorCode === 304) {
+        message.warning(res?.data.error);
       }
     } catch (error) {
-      console.error("Error fetching data login:", error);
+      console.error("Error login:", error);
     }
     setIsSubmit(false);
   };
 
   return (
-    <Form
-      name="normal_login"
-      className="login-form"
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-    >
-      <div className="text-xl mb-10 flex justify-center">Login</div>
-      <Form.Item
-        name="username"
-        rules={[{ required: true, message: "Please input your Username!" }]}
-      >
-        <Input
-          prefix={<UserOutlined className="site-form-item-icon" />}
-          placeholder="Username"
-        />
-      </Form.Item>
-      <Form.Item
-        name="password"
-        rules={[{ required: true, message: "Please input your Password!" }]}
-      >
-        <Input
-          prefix={<LockOutlined className="site-form-item-icon" />}
-          type="password"
-          placeholder="Password"
-        />
-      </Form.Item>
-      <Form.Item>
-        <Form.Item name="remember" valuePropName="checked" noStyle>
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
-
-        <a className="login-form-forgot" href="">
-          Forgot password
-        </a>
-      </Form.Item>
-
-      <Form.Item>
-        <Button
-          loading={isSubmit}
-          type="primary"
-          htmlType="submit"
-          className="login-form-button"
+    <div>
+      {hidden === false ? (
+        <ActiveAccount email={email} hidden={hidden}/>
+      ) : (
+        <Form
+          name="normal_login"
+          className="login-form"
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          // style={{ width: 300 }}
         >
-          Log in
-        </Button>
-        <span className="m-1">Or</span>
-        <Link href="/register">register now!</Link>
-      </Form.Item>
-    </Form>
+          <div className="text-2xl mt-5 mb-10 flex justify-center">
+            Đăng Nhập
+          </div>
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: "Vui lòng nhập Username!" }]}
+          >
+            <Input
+              className="h-10"
+              prefix={<UserOutlined className="site-form-item-icon" />}
+              placeholder="Username"
+            />
+          </Form.Item>
+          <Form.Item
+            // style={{ marginBottom: 5 }}
+            name="password"
+            rules={[{ required: true, message: "Please input your Password!" }]}
+          >
+            <Input
+              className="h-10"
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              type="password"
+              placeholder="Password"
+            />
+          </Form.Item>
+          {/* <Form.Item   style={{ marginBottom: 5 }}>
+            <div className="flex justify-end pr-2 text-sm cursor-pointer hover:text-blue-400"><span>Quên mật khẩu</span></div>
+          </Form.Item> */}
+
+          <Form.Item>
+            <Button
+              loading={isSubmit}
+              type="primary"
+              htmlType="submit"
+              className="w-full pt-4 mb-2"
+              style={{ height: 40 }}
+            >
+              Đăng nhập
+            </Button>
+            <span className="m-1">Chưa có tài khoản?</span>
+            <Link href="/register">Đăng ký ngay</Link>
+            <br />
+          </Form.Item>
+        </Form>
+      )}
+    </div>
   );
 };

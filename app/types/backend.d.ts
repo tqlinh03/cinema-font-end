@@ -38,17 +38,13 @@ export interface IAccount {
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
 
 export interface IPermission {
-  _id?: string;
+  id?: string;
   name?: string;
   apiPath?: string;
   method?: string;
   module?: string;
 
-  createdBy?: string;
-  isDeleted?: boolean;
-  deletedAt?: boolean | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdDate: Date;
 }
 
 export interface ICinema {
@@ -64,8 +60,9 @@ export interface ICinema {
 }
 
 export interface IRoom {
-  _id?: string;
+  id?: string;
   name: string;
+  code: string;
   isActive: boolean;
 
   createdBy?: string;
@@ -76,22 +73,19 @@ export interface IRoom {
 }
 
 export interface IMovie {
-  _id?: any;
+  id?: any;
   name: string;
   description: string;
   genre: string;
   time: number;
   director: string;
-  cast: string;
-  ReleaseDate: Date | null;
+  _cast: string;
+  releaseDate: Date | null;
   videoURL: string;
   img: string;
 
-  createdBy?: string;
-  isDeleted?: boolean;
-  deletedAt?: boolean | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdDate?: Date;
+  lastModifiedDate?: Date;
 }
 
 export interface IBooking {
@@ -106,52 +100,64 @@ export interface IBooking {
 }
 
 export interface IShowtime {
-  _id?: any;
+  img?: string | undefined;
+  time?: number;
+  id?: number;
   date: Date;
-  start_time: Date;
-  end_time: Date;
+  // start_time: Date;
+  // end_time: Date;
+  start_time: string; 
+  end_time: string;
   movie: number;
+  roomId: number;
 
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface IUser {
-  _id?: string;
-  name: string;
+  id?: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: Date;
   email?: string;
   password?: string;
-  // age: number;
-  gender: string;
-  address: string;
+  accountLocked?: boolean;
+  enabled?: boolean;
+  roleId?: number;
   role?: {
-    _id: string;
+    id: string;
     name: string;
   };
 
-  company?: {
-    _id: string;
-    name: string;
-  };
-  createdBy?: string;
-  isDeleted?: boolean;
-  deletedAt?: boolean | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createDate?: Date;
+  lastModifiedDate?: Date;
+  // // age: number;
+  // gender: string;
+  // address: string;
+  
+
+  // company?: {
+  //   _id: string;
+  //   name: string;
+  // };
+  // createdBy?: string;
+  // isDeleted?: boolean;
+  // deletedAt?: boolean | null;
+  // createdAt?: string;
+  // updatedAt?: string;
 }
 
 export interface IRole {
-  _id?: number;
+  id?: number;
   name: string;
   description: string;
-  isActive: boolean;
+  active?: boolean;
+  isActive?: boolean;
   permissions: IPermission[] | number[];
 
-  createdBy?: string;
-  isDeleted?: boolean;
-  deletedAt?: boolean | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdDate?: Date;
+  lastModifiedDate?: Date;
 }
 
 export interface ILikeComment {
@@ -219,9 +225,9 @@ export interface IPermission {
   method?: string;
   module?: string;
 
-  createdBy?: string;
-  isDeleted?: boolean;
-  deletedAt?: boolean | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdDate?: string;
+  // isDeleted?: boolean;
+  // deletedAt?: boolean | null;
+  // createdAt?: string;
+  // updatedAt?: string;
 }

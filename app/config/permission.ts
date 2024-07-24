@@ -17,12 +17,6 @@ export const ALL_PERMISSIONS = {
       UPDATE: { method: "PATCH", apiPath: '/api/v1/users/:id', module: "USERS" },
       DELETE: { method: "DELETE", apiPath: '/api/v1/users/:id', module: "USERS" },
   },
-  CINEMAS: {
-    GET_PAGINATE: { method: "GET", apiPath: '/api/v1/cinemas', module: "CINEMAS" },
-    CREATE: { method: "POST", apiPath: '/api/v1/cinemas', module: "CINEMAS" },
-    UPDATE: { method: "PATCH", apiPath: '/api/v1/cinemas/:id', module: "CINEMAS" },
-    DELETE: { method: "DELETE", apiPath: '/api/v1/cinemas/:id', module: "CINEMAS" },
-  },
   ROOMS: {
     GET_PAGINATE: { method: "GET", apiPath: '/api/v1/rooms', module: "ROOMS" },
     CREATE: { method: "POST", apiPath: '/api/v1/rooms', module: "ROOMS" },
@@ -36,10 +30,16 @@ export const ALL_PERMISSIONS = {
     DELETE: { method: "DELETE", apiPath: '/api/v1/movies/:id', module: "MOVIES" },
   },
   SHOWTIME: {
-    GET_PAGINATE: { method: "GET", apiPath: '/api/v1/showtime', module: "SHOWTIME" },
-    CREATE: { method: "POST", apiPath: '/api/v1/showtime', module: "SHOWTIME" },
-    UPDATE: { method: "PATCH", apiPath: '/api/v1/showtime/:id', module: "SHOWTIME" },
-    DELETE: { method: "DELETE", apiPath: '/api/v1/showtime/:id', module: "SHOWTIME" },
+    GET_PAGINATE: { method: "GET", apiPath: '/api/v1/showtimes', module: "SHOWTIME" },
+    CREATE: { method: "POST", apiPath: '/api/v1/showtimes', module: "SHOWTIME" },
+    UPDATE: { method: "PATCH", apiPath: '/api/v1/showtimes/:id', module: "SHOWTIME" },
+    DELETE: { method: "DELETE", apiPath: '/api/v1/showtimes/:id', module: "SHOWTIME" },
+  },
+  STAFF: {
+    GET_PAGINATE: { method: "GET", apiPath: '/api/v1/staffs', module: "SHOWTIME" },
+    CREATE: { method: "POST", apiPath: '/api/v1/staffs', module: "SHOWTIME" },
+    UPDATE: { method: "PATCH", apiPath: '/api/v1/staffs/:id', module: "SHOWTIME" },
+    DELETE: { method: "DELETE", apiPath: '/api/v1/staffs/:id', module: "SHOWTIME" },
   },
 }
 
@@ -54,5 +54,6 @@ export const ALL_MODULES = {
   ROOMS: 'ROOMS',
   ROLES: 'ROLES',
   USERS: 'USERS',
-  CINEMAS: 'CINEMAS'
+  CINEMAS: 'CINEMAS',
+  STAFF: 'STAFF'
 }

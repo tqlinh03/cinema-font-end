@@ -3,8 +3,20 @@ import { IAccount, IBackendRes, ICinema, IComment, ILikeComment, IMovie, IPermis
 
 
 // Module Auth
-export const callLogin = (username: string, password: string) => {
-  return axios.post('/api/v1/auth/login', { username, password })
+export const callLogin = (email: string, password: string) => {
+  return axios.post('/api/v1/auth/login', { email, password })
+}
+
+export const callSendCodeEmail = (email: string) => {
+  return axios.post(`/api/v1/auth/sendValidationEmail?email=${email}`)
+}
+
+export const callRegister = (user: IUser) => {
+  return axios.post('/api/v1/auth/register', {...user})
+}
+
+export const callActivateAccount= (token: string) => {
+  return axios.get(`/api/v1/auth/activate-account?token=${token}`)
 }
 
 export const callLogout = () => {
@@ -15,8 +27,8 @@ export const callRefreshToken = () => {
   return axios.get('/api/v1/auth/refresh')
 }
 
-export const callFetchAccount = () => {
-  return axios.get("/api/v1/auth/account")
+export const callFetchAccount = (accessToken: String) => {
+  return axios.get(`/api/v1/auth/account?accessToken=${accessToken}`)
 }
 
 // Module Cinema
@@ -28,11 +40,19 @@ export const callFetchRoom= (query: string) => {
   return axios.get(`/api/v1/rooms?${query}`)
 }
 
+export const callFetchRoomById = (id: number) => {
+  return axios.get(`/api/v1/rooms/${id}`)
+}
+
+export const callFetchRoomAll= () => {
+  return axios.get(`/api/v1/rooms`)
+}
+
 export const callDeleteRoom = (id: number) => {
   return axios.delete(`/api/v1/rooms/${id}`)
 }
 
-export const callUpdateRoom = (id: number, room: ICinema) => {
+export const callUpdateRoom = (id: number, room: any) => {
   return axios.patch(`/api/v1/rooms/${id}`, {...room})
 }
 
@@ -115,6 +135,10 @@ export const callFetchMovie = (query: string) => {
   return axios.get(`/api/v1/movies?${query}`)
 }
 
+export const callGetMovieByIdAndDate = (id: number, date: String) => {
+  return axios.get(`/api/v1/movies/movie-showtime/${id}/${date}`)
+}
+
 export const callFetchMovieById = (id: number) => {
   return axios.get(`/api/v1/movies/${id}`)
 }
@@ -179,8 +203,12 @@ export const callFetchShowtime = (query: string) => {
   return axios.get(`/api/v1/showtimes?${query}`)
 }
 
-export const callFetchShowtimeByDate = (date: Date) => {
+export const callFetchShowtimeByDate = (date: any) => {
   return axios.get(`/api/v1/showtimes/${date}`)
+}
+
+export const callFetchShowtimeById = (id: number) => {
+  return axios.get(`/api/v1/showtimes/detail/${id}`)
 }
 
 export const callFetchMovieByIdAndDate = (id: number, date: Date) => {
@@ -200,6 +228,67 @@ export const callBookingSeats = (booking: any) => {
   return axios.post(`/api/v1/seats`, {...booking})
 }
 
+//Module Staff 
+export const callCreateStaff = (staff: any) => {
+  return axios.post(`/api/v1/staffs`, {...staff})
+}
+
+export const callFetchStaff = (query: string) => {
+  return axios.get(`/api/v1/staffs?${query}`)
+}
+
+export const callDeleteStaff = (id: number) => {
+  return axios.delete(`/api/v1/staffs/${id}`)
+}
+
+//Module Shift 
+export const callCreateShift = (shift: any) => {
+  return axios.post(`/api/v1/shifts`, {...shift})
+}
+
+export const callFetchShift = (query: string) => {
+  return axios.get(`/api/v1/shifts?${query}`)
+}
+
+export const callUpdateShift = (id: number, shift: any) => {
+  return axios.patch(`/api/v1/shifts/${id}`, {...shift})
+}
+
+export const callDeleteShift = (id: number) => {
+  return axios.delete(`/api/v1/shifts/${id}`)
+}
+
+//Module rota 
+export const callCreateRota = (rota: any) => {
+  return axios.post(`/api/v1/rotas`, {...rota})
+}
+
+export const callFetchRotaByDate = (date: String) => {
+  return axios.get(`/api/v1/rotas/date/${date}`)
+}
+
+export const callFetchRotaById = (id: number) => {
+  return axios.get(`/api/v1/rotas/${id}`)
+}
+
+export const callFetchRota = (query: string) => {
+  return axios.get(`/api/v1/rotas?${query}`)
+}
+
+export const callUpdateRota = (id: number, rota: any) => {
+  return axios.patch(`/api/v1/rotas/${id}`, {...rota})
+}
+
+export const callDeleteRota = (id: number) => {
+  return axios.delete(`/api/v1/rotas/${id}`)
+}
+//Module Ticket 
+export const callCreateTicket = (ticket: any) => {
+  return axios.post(`/api/v1/ticket`, {...ticket})
+}
+
+
+
 //Module BookingTicket 
 export const callBookingTicket = (ticket: any) => {
   return axios.post(`/api/v1/bookings`, {...ticket})
@@ -208,3 +297,12 @@ export const callUpdateBookingTicket = (ticketId: number) => {
   return axios.patch(`/api/v1/bookings/${ticketId}`)
 }
 
+//Module Order
+export const callCreateOrder = (order: any) => {
+  return axios.post(`/api/v1/orders`, {...order})
+}
+
+// Module Payment
+export const callUpdatePayment = (id: number) => {
+  return axios.patch(`/api/v1/payments/${id}`)
+}

@@ -23,7 +23,7 @@ export const PaymentInfo = () => {
         <Col span={24} md={24}>
           <Row style={{ paddingTop: 10 }}>
             <span className=" pb-2">Họ tên: </span>
-            <span className="pl-12 font-bold">{user.name}</span>
+            <span className="pl-12 font-bold">{user.firstName} {user.lastName}</span>
           </Row>
           <Row>
             <span className="pb-2">Email: </span>

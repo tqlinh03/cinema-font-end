@@ -5,19 +5,19 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 interface IState {
   isFetching: boolean;
   meta: {
-    totalItems: number,
-    itemCount: number,
-    itemsPerPage: number,
-    totalPages: number,
-    currentPage: number
-},
-  result: IRole[];   
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+  result: IRole[];
   isFetchSingle: boolean;
   singleRole: IRole;
 }
 export const fetchRole = createAsyncThunk(
   "fetchRole",
-  async ({ query }:{ query: string }) => {
+  async ({ query }: { query: string }) => {
     const response = await callFetchRole(query);
     return response;
   }
@@ -27,9 +27,11 @@ export const fetchRoleById = createAsyncThunk(
   "fetchRoleById",
   async (id: number) => {
     const res = await callFetchRoleByID(id);
+    console.log("id", id);
+    console.log("res id", res);
     return res;
   }
-)
+);
 
 const initialState: IState = {
   isFetching: true,
@@ -39,16 +41,17 @@ const initialState: IState = {
     itemCount: 0,
     itemsPerPage: 10,
     totalPages: 0,
-    currentPage: 1
+    currentPage: 1,
   },
   result: [],
   singleRole: {
-    _id: undefined,
+    id: undefined,
     name: "",
     description: "",
-    isActive: false,
+    active: false,
     permissions: [],
-    createdAt: ""
+    // createdDate: undefined, 
+    // lastModifiedDate: undefined
   },
 };
 
@@ -59,10 +62,10 @@ export const roleSlide = createSlice({
   reducers: {
     resetSingleRole: (state, action) => {
       state.singleRole = {
-        _id: undefined,
+        id: undefined,
         name: "",
         description: "",
-        isActive: false,
+        active: false,
         permissions: [],
       };
     },
@@ -86,7 +89,7 @@ export const roleSlide = createSlice({
       if (action.payload && action.payload.data) {
         state.isFetching = false;
         state.meta = action.payload.data.meta;
-        state.result = action.payload.data.items;
+        state.result = action.payload.data.content;
       }
       // Add user to the state array
 
@@ -96,36 +99,33 @@ export const roleSlide = createSlice({
     builder.addCase(fetchRoleById.pending, (state, action) => {
       state.isFetchSingle = true;
       state.singleRole = {
-        _id: undefined,
+        id: undefined,
         name: "",
         description: "",
-        isActive: false,
-        permissions: []
-      }
+        active: false,
+        permissions: [],
+      };
     });
 
     builder.addCase(fetchRoleById.rejected, (state, action) => {
       state.isFetchSingle = false;
       state.singleRole = {
-        _id: undefined,
+        id: undefined,
         name: "",
         description: "",
-        isActive: false,
-        permissions: []
-      }
-    })
+        active: false,
+        permissions: [],
+      };
+    });
 
     builder.addCase(fetchRoleById.fulfilled, (state, action) => {
-      if(action.payload && action.payload.data) {
+      if (action.payload && action.payload.data) {
         state.isFetchSingle = false;
-        state.singleRole = action.payload.data
+        state.singleRole = action.payload.data;
       }
-    })
+    });
   },
 });
-export const {
-  resetSingleRole
-} = roleSlide.actions;
+export const { resetSingleRole } = roleSlide.actions;
 
-
-export default roleSlide.reducer; 
+export default roleSlide.reducer;

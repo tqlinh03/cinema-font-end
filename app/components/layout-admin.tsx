@@ -2,13 +2,22 @@
 import React, { useState } from "react";
 import {
   ApartmentOutlined,
+  AudioMutedOutlined,
+  AuditOutlined,
+  CalendarOutlined,
+  DashboardOutlined,
+  FieldTimeOutlined,
   GoldOutlined,
+  HomeOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SafetyOutlined,
+  ShopOutlined,
   UploadOutlined, 
-  UserOutlined, 
+  UsergroupDeleteOutlined, 
+  UserOutlined,
+  VideoCameraOutlined, 
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Image, message } from "antd/lib";
 import { useDispatch } from "react-redux";
@@ -63,83 +72,126 @@ export const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
         trigger={null}
         collapsible
         collapsed={collapsed}
-        style={{ background: "#ffffff" }}
+        style={{ background: "#ffffff"}}
       >
         <div className="flex justify-center">
           <Link href={"/"}>
-            <Image preview={false} src="/logo.png" width="70px" height="54px" />
+            <Image preview={false} style={{marginTop: 15}} src="/logo1.png" width="50px" height="30px" />
           </Link>
         </div>
-        <div className="flex flex-col items-center justify-between min-h-screen">
+        {/* <div className="flex flex-col items-center justify-between min-h-screen"> */}
           <Menu
             theme="light"
             mode="inline"
             defaultSelectedKeys={["1"]}
+            style={{marginTop: 30}}
             items={[
+              {
+                key: "dasboard",
+                icon: <DashboardOutlined />,
+                label: <Link href="/admin/">Bảng điều khuyển</Link>,
+              },
               {
                 key: "user",
                 icon: <UserOutlined />,
-                label: <Link href="/admin/user">User</Link>,
+                label: <Link href="/admin/user">Người dùng</Link>,
               },
               {
-                key: "/role",
+                key: "role",
                 icon: <SafetyOutlined />,
-                label: <Link href="/admin/role">Role</Link>,
+                label: <Link href="/admin/role">Vai Trò</Link>,
               },
               {
                 key: "permission",
-                icon: <UploadOutlined />,
-                label: <Link href="/admin/permission">Permission</Link>,
+                icon: <AuditOutlined />,
+                label: <Link href="/admin/permission">Quyền hạn</Link>,
               },
+              
               {
-                key: "cinema",
-                icon: <ApartmentOutlined/>,
-                label: <Link href="/admin/cinema">Cinema</Link>,
-              },
-              {
-                key: "room",
-                icon: <GoldOutlined/>,
-                label: <>Manage Room</>,
+                key: "movie",
+                icon: <VideoCameraOutlined />,
+                label: <>Phim</>,
                 children: [ 
                   {
-                    key: "AllRoom",
-                    label: <Link href="/admin/room/all">All Room</Link>,
+                    key: "allmovie",
+                    label: <Link href="/admin/movie/all">Phim</Link>,
                   },
                   {
-                    key: "AddRoom",
-                    label: <Link href="/admin/room/new">Add Room</Link>,
+                    key: "addmovie",
+                    label: <Link href="/admin/movie/new">Thêm phim mới</Link>,
                   },
                  
                 ]
               },
               {
-                key: "Manage_Movie",
-                icon: <GoldOutlined/>,
-                label: <>Manage Movie</>,
-                children: [ 
-                  {
-                    key: "AllMovie",
-                    label: <Link href="/admin/movie/all">All Movies</Link>,
-                  },
-                  {
-                    key: "AddMovie",
-                    label: <Link href="/admin/movie/new">Add Movie</Link>,
-                  },
-                 
-                ]
+                key: "order",
+                icon: <ShopOutlined />,
+                label: <>Vé đã đặt</>,
               },
               {
                 key: "showtimes",
-                icon: <SafetyOutlined />,
-                label: <>Manage Showtime</>,
+                icon: <FieldTimeOutlined />,
+                label: <>lịch chiếu</>,
                 children: [ 
                   {
                     key: "allshowtimes",
-                    label: <Link href="/admin/showtimes">Showtimes</Link>,
+                    label: <Link href="/admin/showtimes">Lịch chiếu</Link>,
                   },
                   {
                     key: "addshowtimes",
-                    label: <Link href="/admin/showtimes/new">Add Movie</Link>,
+                    label: <Link href="/admin/showtimes/new">Tạo lịch chiếu phim</Link>,
+                  },
+                 
+                ]
+              },
+              {
+                key: "room",
+                icon: <HomeOutlined />,
+                label: <>Quản lý phòng</>,
+                children: [ 
+                  {
+                    key: "rooms",
+                    label: <Link href="/admin/room/all">Phòng</Link>,
+                  },
+                  {
+                    key: "create-room",
+                    label: <Link href="/admin/room/new">Tạo phòng mới</Link>,
+                  },
+                 
+                ]
+              },
+              {
+                key: "staff",
+                icon: <UsergroupDeleteOutlined />,
+                label: <>Nhân viên</>,
+                children: [ 
+                  {
+                    key: "staffs",
+                    label: <Link href="/admin/staff/all">Nhân viên</Link>,
+                  },
+                  {
+                    key: "create-staff",
+                    label: <Link href="/admin/staff/new">Thêm nhân viên mới</Link>,
+                  },
+                 
+                ]
+              },
+              {
+                key: "calendar",
+                icon: <CalendarOutlined />,
+                label: <>Lịnh làm việc</>,
+                children: [ 
+                  {
+                    key: "calendars",
+                    label: <Link href="/admin/calendars/all">Lịch làm việc</Link>,
+                  },
+                  {
+                    key: "create-calendar",
+                    label: <Link href="/admin/calendars/new">Tạo Lịch làm việc</Link>,
+                  },
+                  {
+                    key: "shifts",
+                    label: <Link href="/admin/calendars/shifts">Ca làm việc</Link>,
                   },
                  
                 ]
@@ -147,7 +199,7 @@ export const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
            
             ]}
           />
-        </div>
+        {/* </div> */}
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
@@ -180,6 +232,7 @@ export const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
             margin: "24px 16px",
             // padding: 24,
             minHeight: 280,
+            height: "100%",
             background: "#f5f5f5",
             borderRadius: borderRadiusLG,
           }}

@@ -1,9 +1,9 @@
 
-import Test from '@/app/components/test/test';
-import React from 'react';
+// import Test from '@/app/components/test/test';
+// import React from 'react';
 
-export default function Home() { 
-  return (
-    <Test/>
-  );
-}
+// export default function Home() { 
+//   return (
+//     <Test/>
+//   );
+// }

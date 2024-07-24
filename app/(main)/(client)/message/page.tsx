@@ -1,15 +1,15 @@
-'use client'
+// 'use client'
 
 
-import MovieTheater from '@/app/components/Websocket';
+// import MovieTheater from '@/app/components/Websocket';
 
-import React from 'react';
+// import React from 'react';
 
-export default function Message( ) {
-  return ( 
-    <>
+// export default function Message( ) {
+//   return ( 
+//     <>
 
-      <MovieTheater/>
-    </>
-  );
-}
+//       <MovieTheater/>
+//     </>
+//   );
+// }

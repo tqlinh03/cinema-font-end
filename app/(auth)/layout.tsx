@@ -2,7 +2,7 @@ export default function LayoutAuth({
   children
 }: {children: React.ReactNode}) {
   return (
-    <div className="bg-white  flex items-center justify-center mt-48">
+    <div className="bg-cyan-600 h-full flex items-center justify-center ">
       {children}
     </div>
   )

@@ -1,27 +1,28 @@
 "use client";
 
-import { callBookingTicket, callUpdateBookingTicket } from "@/app/config/api";
+import { callCreateOrder, callFetchShowtimeById} from "@/app/config/api";
 import { useAppSelector } from "@/app/redux/hook";
-import { IBooking, IMovie } from "@/app/types/backend";
+import { IMovie } from "@/app/types/backend";
 import { Button, Col, Grid, Image, Row, message } from "antd";
-import axios from "axios";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { checkPaid, checkPaymentRecords } from "../payment/payment";
-import { set } from "lodash";
-import { fetchAccount } from "@/app/redux/slice/accountSlide";
-import { useDispatch } from "react-redux";
+
 const { useBreakpoint } = Grid;
+
 interface TicketProps {
+  object: any[];
   seats: string[];
   price: number;
   movie: IMovie | null;
+  showtimeId: string | null;
   current: number;
   stepsLength: number;
   setCurrent: (value: number) => void;
   setTicketCode: (value: string) => void;
   setIsModalOpen: (value: boolean) => void;
+  isModalOpen: boolean;
 }
 
 interface PaymentRecordPrpos {
@@ -33,6 +34,12 @@ interface PaymentRecordPrpos {
   updated_at: string;
 }
 
+interface orderProps {
+  seatType: string;
+  price: number;
+  seatNumber: string;
+}
+
 export const Ticket = ({
   seats,
   price,
@@ -42,31 +49,47 @@ export const Ticket = ({
   setTicketCode,
   setCurrent,
   setIsModalOpen,
+  showtimeId,
+  object,
+  isModalOpen
 }: TicketProps) => {
-  const [paymentRecords, setPaymentRecords] = useState<PaymentRecordPrpos[]>(
-    []
-  );
-  const [ticket, setTicket] = useState<IBooking | null>(null);
-  const user = useAppSelector((state) => state.account.user._id);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [order, setOrder] = useState<orderProps[]>([]);
+  const userId = useAppSelector((state) => state.account.user._id);
+  const [paymentRecords, setPaymentRecords] = useState<PaymentRecordPrpos[]>([]);
+  const [ticket, setTicket] = useState<any | null>(null);
+  const [showtime, setShowtime] = useState<any | null>([]);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); 
   const seatsString: string = seats.join(", ");
   const screens = useBreakpoint();
   const router = useRouter();
-  const dispatch = useDispatch();
 
   useEffect(() => {
+    if (showtimeId) {
+      const fetchData = async () => {
+        try {
+          const res = await callFetchShowtimeById(+showtimeId);
+          if (res.status === 200) {
+            setShowtime(res.data);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    }
     if (paymentRecords.length > 0) {
       const check = async () => {
         const check = await checkPaymentRecords(
           paymentRecords,
-          ticket?.total_price ?? 0,
-          ticket?.ma_GD ?? "",
-          ticket?._id
+          ticket?.payment.amount ?? 0,
+          ticket?.maGd ?? "",
+          ticket?.payment.id
         );
+        console.log("check", check);
         if (check) {
           setIsModalOpen(false);
           message.success("Thanh toán thành công");
-          dispatch(fetchAccount() as any)
           router.push("/");
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -75,37 +98,47 @@ export const Ticket = ({
       };
       check();
     }
-  }, [paymentRecords]);
+  }, [paymentRecords, showtimeId]);
 
-  const payment = () => {
-    bookingTicket();
-    setIsModalOpen(true);
+  useEffect(() => {
+    setOrder([]);
+    object.map((item: any) => {
+      const orderItem = {
+        seatType: item.category.label,
+        price: item.pricing.price,
+        seatNumber: item.label,
+        showtimeId: showtimeId,
+      };
+      setOrder((order) => [...order, orderItem]);
+    });
+  }, [object]);
+
+  const orderTicket = async () => {
+    try {
+      const order_ = { order, userId };
+      const res = await callCreateOrder(order_);
+      setTicket(res.data);
+      setTicketCode(res.data.maGd);
+
+      intervalRef.current = setInterval(async () => { 
+        const check = await checkPaid();
+        setPaymentRecords(check);
+      }, 1000);
+
+      setTimeout(() => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          setIsModalOpen(false);
+        }
+      }, 120000);
+      setIsModalOpen(true);
+       
+    } catch (error) {
+      console.log("error", error);
+    }
+    
   };
 
-  const bookingTicket = async () => {
-    const ticket = {
-      movie: movie?._id,
-      total_price: price,
-      seats,
-      user: +user,
-    };
-    const res = await callBookingTicket(ticket);
-    setTicket(res.data);
-    setTicketCode(res.data.ma_GD);
-
-    intervalRef.current = setInterval(async () => {
-      const check = await checkPaid();
-      setPaymentRecords(check);
-    }, 1000);
-    setTimeout(() => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        setIsModalOpen(false);
-      }
-    }, 120000);
-  };
-
-  
   const next = () => {
     setCurrent(current + 1);
   };
@@ -151,7 +184,7 @@ export const Ticket = ({
                   <span>Thời lượng:</span>
                 </Col>
                 <Col span={24} md={12}>
-                  <span className="">{movie?.time}</span>
+                  <span className="">{movie?.time} phút</span>
                 </Col>
               </Row>
             </li>
@@ -166,9 +199,7 @@ export const Ticket = ({
                   <span>Ngày chiếu:</span>
                 </Col>
                 <Col span={24} md={12}>
-                  <span className="">
-                    {moment(movie?.ReleaseDate).format("DD/MM/YYYY")}
-                  </span>
+                  <span className="">{showtime.date}</span>
                 </Col>
               </Row>
             </li>
@@ -178,7 +209,9 @@ export const Ticket = ({
                   <span>Giờ chiếu:</span>
                 </Col>
                 <Col span={24} md={12}>
-                  <span className="">{moment().format("DD/MM/YYYY")}</span>
+                  <span className="">
+                    {moment(showtime.start_time, "HH:mm:ss").format("HH:mm")}
+                  </span>
                 </Col>
               </Row>
             </li>
@@ -215,7 +248,8 @@ export const Ticket = ({
               </Button>
             )}
             {current === stepsLength - 1 && (
-              <Button type="primary" className="w-full" onClick={payment}>
+              // <Button type="primary" className="w-full" onClick={payment}>
+              <Button type="primary" className="w-full" onClick={orderTicket}>
                 Thanh toán
               </Button>
             )}

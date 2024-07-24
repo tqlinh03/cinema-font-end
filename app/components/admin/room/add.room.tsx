@@ -1,102 +1,32 @@
 "use client";
 import React, { useState } from "react";
-import { Button, Form, Input, List, Switch } from "antd";
-
-type SeatType = "regular" | "vip";
-
-type Seat = {
-  id: number;
-  name: string;
-  type: SeatType;
-};
-
-type Row = {
-  id: number;
-  name: string;
-  seats: Seat[];
-};
-
-const initialRows: Row[] = [];
+import { Button, Form, Input, List, Switch, message } from "antd";
+import { callCreateRoom } from "@/app/config/api";
 
 const AddSeatsAndRows = () => {
-  const [rows, setRows] = useState(initialRows);
-  const [seatName, setSeatName] = useState("");
-  const [rowName, setRowName] = useState("");
-
-  const handleAddRow = () => {
-    const newRow: Row = { id: rows.length + 1, name: rowName, seats: [] };
-    setRows([...rows, newRow]);
-    setRowName("");
-  };
-
-  const handleAddSeat = (rowId: number, type: SeatType) => {
-    setRows(
-      rows.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              seats: [
-                ...row.seats,
-                { id: row.seats.length + 1, name: seatName, type },
-              ],
-            }
-          : row
-      )
-    );
-    setSeatName("");
-  };
-
-  const handleAddSeats = (rowId: number, type: SeatType) => {
-    setRows(
-      rows.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              seats: [
-                ...row.seats,
-                { id: row.seats.length + 1, name: seatName, type },
-                { id: row.seats.length + 2, name: seatName, type },
-              ],
-            }
-          : row
-      )
-    );
-    setSeatName("");
-  };
-
-  const handleDeleteRow = (rowId: number) => {
-    setRows(rows.filter((row) => row.id !== rowId));
-  };
-
-  const handleDeleteSeat = (rowId: number, seatId: number) => {
-    setRows(
-      rows.map((row) =>
-        row.id === rowId
-          ? { ...row, seats: row.seats.filter((seat) => seat.id !== seatId) }
-          : row
-      )
-    );
-  };
-
-  const handleChangeSeat = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeatName(event.target.value);
-  };
-
-  const handleChangeRow = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowName(event.target.value);
-  };
-
+  const [form] = Form.useForm();
   const layout = {
     labelCol: { span: 5 },
     wrapperCol: { span: 16 },
   };
 
-  const [form] = Form.useForm();
 
-  const onFinish = async (values: any) => {};
+  const onFinish = async (values: any) => {
+    try {
+      const res = await callCreateRoom(values);
+      if (res.status === 200) {
+        message.success("Tạo phòng thành công");
+        form.resetFields();
+      } else {
+        message.error("Tạo phòng thất bại");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const validateMessages = {
-    required: "${label} is required!",
+    required: "${label} Không được để trống!",
   };
 
   return (
@@ -105,51 +35,43 @@ const AddSeatsAndRows = () => {
         title="Create Room"
         {...layout}
         form={form}
-        name="nest-messages"
+        name="room"
+        labelAlign="left"
         onFinish={onFinish}
-        style={{ maxWidth: 600 }}
+        style={{ width: "100%", margin: "60px", padding: "20px" }}
         validateMessages={validateMessages}
+        className="text-2xl font-medium mb-10"
       >
-        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+        <div className="text-2xl mb-10 flex justify-start">
+          TẠO PHÒNG MỚI
+            {/* {movieId != undefined
+              ? "CÂP NHẬT TÔNG TIN PHIM"
+              : "THÊM BỘ PHIM MỚI"} */}
+          </div>
+        <Form.Item name="name" label="Tên phòng" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="code" label="Mã phòng" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
 
-        <Form.Item name="isAction" label="isAction" valuePropName="checked">
-          <Switch />
-        </Form.Item>
-        <Form.Item >
-          <Button type="primary" htmlType="submit">Create</Button>
-        </Form.Item>
+        <Form.Item name="isActive" label="Trạng thái" initialValue={false}>
+            <Switch checkedChildren="HOẠT ĐỘNG" unCheckedChildren="KHÔNG HOẠT ĐỘNG" />
+          </Form.Item>
+        <Form.Item wrapperCol={{ span: 24 }}>
+            <Button
+              style={{ height: 40, width: "100%" }}
+              type="primary"
+              htmlType="submit"
+            >
+              Tạo mới
+              {/* {movieId != undefined
+                ? "Cập nhật"
+                : "Thêm "} */}
+            </Button>
+          </Form.Item>
       </Form>
-      {/* <div>
-        <Input value={rowName} onChange={handleChangeRow} placeholder="Enter row name" />
-        <Button onClick={handleAddRow}>Add Row</Button>
-        {rows.map(row => (
-          <div key={row.id}>
-            <h3>{row.name}</h3>
-            <Button onClick={() => handleDeleteRow(row.id)}>Delete Row</Button>
-            {row.seats.map(seat => (
-              <div key={seat.id}>
-                <Button style={{ margin: '5px', backgroundColor: seat.type === 'vip' ? 'gold' : 'white' }}>
-                  {seat.name} ({seat.type})
-                </Button>
-                <Button onClick={() => handleDeleteSeat(row.id, seat.id)}>Delete Seat</Button>
-              </div>
-            ))}
-            <Input value={seatName} onChange={handleChangeSeat} placeholder="Enter seat name" />
-            <Button onClick={() => handleAddSeat(row.id, 'regular')}>Add Regular Seat</Button>
-            <Button onClick={() => handleAddSeats(row.id, 'regular')}>Add Two Regular Seats</Button>
-            <Button onClick={() => handleAddSeats(row.id, 'vip')}>Add Two VIP Seats</Button>
-          </div>
-        ))}
-      </div>
-      <div style={{ marginLeft: '50px' }}>
-        <h2>Added Seats:</h2>
-        <List
-          dataSource={rows.flatMap(row => row.seats.map(seat => ({ ...seat, rowId: row.id, rowName: row.name })))}
-          renderItem={item => <List.Item>{item.rowName}: {item.name} ({item.type})</List.Item>}
-        />
-      </div> */}
+   
     </div>
   );
 };

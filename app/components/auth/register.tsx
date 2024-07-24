@@ -1,218 +1,156 @@
 "use client";
-import React from "react";
-import { Button, Checkbox, Col, Form, Input, Row, Select, message } from "antd";
-import { callCreateUser } from "@/app/config/api";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { Button, Form, Input, message } from "antd";
+import { callRegister } from "@/app/config/api";
+import Link from "next/link";
+import { ActiveAccount } from "./active-account";
 
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
-};
-
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
-
-export const Register = () => {
-  const [form] = Form.useForm();
-  const router = useRouter();
+export const Register = () => { 
+  const [hidden, setHiden] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>("");
 
   const onFinish = async (values: any) => {
-    const { name, email, password, address, gender } = values;
-    const user = { name, email,password, address, gender};
+    const { email, password, firstName, lastName } = values;
+    const user = { email, password, firstName, lastName };
     try {
-      const res = await callCreateUser(user);
-      if(res.data) {
-        message.success("Register success");
-        router.push("/login")
+      const res = await callRegister(user);
+      if (res.data) {
+        setEmail(email);
+        setHiden(false);
+      } else {
+        message.warning("Tài khoản đã tồn tại!");
       }
     } catch (error) {
-      message.error("Register failed");
+      message.error("Đăng ký tài khoản thất bại!");
     }
   };
 
-  return (
-    <Form
-      {...formItemLayout}
-      form={form}
-      name="register"
-      onFinish={onFinish}
-      initialValues={{
-        // residence: ["zhejiang", "hangzhou", "xihu"],
-        prefix: "86",
-      }}
-      style={{ maxWidth: 600 }}
-      scrollToFirstError
-    >
-      <div className="text-xl mb-10 flex justify-center">Register</div>
-      <Form.Item
-        name="email"
-        label="E-mail"
-        rules={[
-          {
-            type: "email",
-            message: "The input is not valid E-mail!",
-          },
-          {
-            required: true,
-            message: "Please input your E-mail!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+  return (  
+    <div>
+      {hidden === false ? (
+        <ActiveAccount email={email} hidden={hidden} />
+      ) : (
+        <Form
+          name="register"
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          style={{ marginRight: 15, marginLeft: 15}}
+          layout="vertical"
+        >
+          <div className="text-2xl mt-2 mb-7 flex justify-center">
+            <span className="font-medium text-xl text-gray-700">
+              ĐĂNG KÝ TÀI KHOẢN
+            </span>
+          </div>
 
-      <Form.Item
-        name="password"
-        label="Password"
-        rules={[
-          {
-            required: true,
-            message: "Please input your password!",
-          },
-        ]}
-        hasFeedback
-      >
-        <Input.Password />
-      </Form.Item>
+          <Form.Item
+            style={{ marginBottom: 10 }}
+            name="email"
+            label="Email"
+            rules={[
+              {
+                type: "email",
+                message: "Email không hợp lệ!",
+              },
+              {
+                required: true,
+                message: "Hãy nhập email!",
+              },
+            ]}
+          >
+            <Input placeholder="vd: exemple@gmail.com" />
+          </Form.Item>
 
-      <Form.Item
-        name="confirm"
-        label="Confirm Password"
-        dependencies={["password"]}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: "Please confirm your password!",
-          },
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (!value || getFieldValue("password") === value) {
-                return Promise.resolve();
-              }
-              return Promise.reject(
-                new Error("The new password that you entered do not match!")
-              );
-            },
-          }),
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
+          <Form.Item
+            style={{ marginBottom: 10 }}
+            name="firstName"
+            label="Họ và tên đệm"
+            rules={[
+              {
+                required: true,
+                message: "Hãy nhập họ và tên đệm!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        name="name"
-        label="name"
-        tooltip="What do you want others to call you?"
-        rules={[
-          {
-            required: true,
-            message: "Please input your name!",
-            whitespace: true,
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item 
+            style={{ marginBottom: 10 }}
+            name="lastName"
+            label="Tên"
+            rules={[
+              {
+                required: true,
+                message: "Hãy nhập tên của bạn!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        name="address"
-        label="Address"
-        rules={[
-          {
-            required: true,
-            message: "Please input your address!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            style={{ marginBottom: 10 }}
+            name="password"
+            label="Mật khẩu"
+            rules={[
+              {
+                required: true,
+                message: "Hãy nhập mật khẩu!",
+              },
+              {
+                min: 8,
+                message: "Mật khẩu phải có ít nhất 8 ký tự!",
+              },
+            ]}
+            hasFeedback
+          >
+            <Input.Password />
+          </Form.Item>
 
-      {/* <Form.Item
-        name="phone"
-        label="Phone Number"
-        rules={[{ required: true, message: 'Please input your phone number!' }]}
-      >
-        <Input addonBefore={prefixSelector} style={{ width: '100%' }} />
-      </Form.Item> */}
-
-      <Form.Item
-        name="gender"
-        label="Gender"
-        rules={[{ required: true, message: "Please select gender!" }]}
-      >
-        <Select placeholder="select your gender">
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
-        </Select>
-      </Form.Item>
-
-      {/* <Form.Item
-        label="Captcha"
-        extra="We must make sure that your are a human."
-      >
-        <Row gutter={8}>
-          <Col span={12}>
-            <Form.Item
-              name="captcha"
-              noStyle
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the captcha you got!",
+          <Form.Item
+            style={{ marginBottom: 30 }}
+            name="confirm"
+            label="Xác nhận mật khẩu"
+            dependencies={["password"]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Hãy nhập mật khẩu!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Mật khẩu mới bạn nhập không khớp!")
+                  );
                 },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Button>Get captcha</Button>
-          </Col>
-        </Row>
-      </Form.Item> */}
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
 
-      <Form.Item
-        name="agreement"
-        valuePropName="checked"
-        rules={[
-          {
-            validator: (_, value) =>
-              value
-                ? Promise.resolve()
-                : Promise.reject(new Error("Should accept agreement")),
-          },
-        ]}
-        {...tailFormItemLayout}
-      >
-        <Checkbox>
-          I have read the <a href="">agreement</a>
-        </Checkbox>
-      </Form.Item>
-      <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
-          Register
-        </Button>
-      </Form.Item>
-    </Form>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Button
+              // loading={isSubmit}
+              type="primary"
+              htmlType="submit"
+              className="w-full pt-4 mb-2"
+              style={{ height: 40 }}
+              // onClick={startCountdown}
+            >
+              <span className="text-base font-medium">ĐĂNG KÝ</span>
+            </Button>
+            <span className="m-1">Đã có tài khoản?</span>
+            <Link href="/login">Đăng nhập</Link>
+            <br />
+          </Form.Item>
+        </Form>
+      )}
+    </div>
   );
 };

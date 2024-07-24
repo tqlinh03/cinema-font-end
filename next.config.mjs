@@ -3,11 +3,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // output: "standalone",
-  output: "export",
-  images: {
-    unoptimized: true,
-  },
+  output: "standalone",
+  // output: "export",
+  // images: {
+  //   unoptimized: true,
+  // },
 };
 
 export default nextConfig;
